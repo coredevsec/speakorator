@@ -31,6 +31,27 @@
   top: calc(100% + 0.5rem);
   right: 0;
 }
+.site-navbar .account-menu > a,
+.site-navbar .account-menu > button {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  color: #e4edf7;
+  text-align: left;
+  text-decoration: none;
+}
+.site-navbar .account-menu > button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+.site-navbar .account-menu > a:hover,
+.site-navbar .account-menu > button:hover {
+  color: #8de4d4;
+  background: #18314b;
+}
 .landing-nav {
   align-items: center;
 }

@@ -1,14 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import {
-  Check,
-  CreditCard,
-  LoaderCircle,
-  LogOut,
-  Palette,
-  RotateCcw,
-  Save,
-  Settings2,
-} from "lucide-react";
+import { Check, CreditCard, LoaderCircle, Palette, RotateCcw, Save, Settings2 } from "lucide-react";
 import type { CSSProperties, FormEvent } from "react";
 import { useEffect, useState } from "react";
 
@@ -120,11 +111,6 @@ function SettingsPage() {
       active = false;
     };
   }, [navigate]);
-
-  async function signOut() {
-    await supabase?.auth.signOut();
-    void navigate({ to: "/sign-in", replace: true });
-  }
 
   async function saveProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -295,9 +281,6 @@ function SettingsPage() {
           <Link to="/billing" className="settings-billing-link">
             <CreditCard className="h-4 w-4" /> Manage membership
           </Link>
-          <button type="button" className="settings-signout" onClick={signOut}>
-            <LogOut className="h-4 w-4" /> Sign out
-          </button>
         </form>
         <section className="appearance-settings">
           <div className="appearance-settings-heading">

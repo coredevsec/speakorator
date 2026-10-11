@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Mic, MicOff } from "lucide-react";
+import { ArrowLeft, BookmarkPlus, Mic, MicOff } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { SiteNavbar } from "../components/site-navbar";
@@ -7,6 +7,14 @@ import { supabase } from "../lib/supabase";
 import { checkSubscriptionAccess } from "../lib/subscription-access";
 
 const PRACTICE_TOOLS_KEY = "orator.practice-tools.";
+const SAVED_PRACTICES_KEY = "orator.saved-practices";
+
+type SavedDictation = {
+  id: string;
+  title: string;
+  text: string;
+  savedAt: string;
+};
 
 type RecognitionResult = {
   isFinal: boolean;
@@ -68,10 +76,9 @@ function VoiceTypingPage() {
   const [transcript, setTranscript] = useState("");
   const [interimTranscript, setInterimTranscript] = useState("");
   const [error, setError] = useState("");
+  const [saveMessage, setSaveMessage] = useState("");
   const recognitionRef = useRef<Recognition | null>(null);
   const wantsListeningRef = useRef(false);
-  const restartTimerRef = useRef<number | null>(null);
-  const startListeningRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     setSupported(getRecognitionConstructor() !== null);
@@ -107,10 +114,6 @@ function VoiceTypingPage() {
   const stopListening = useCallback(
     (savePreference = true) => {
       wantsListeningRef.current = false;
-      if (restartTimerRef.current !== null) {
-        window.clearTimeout(restartTimerRef.current);
-        restartTimerRef.current = null;
-      }
       try {
         recognitionRef.current?.stop();
       } catch {
@@ -134,7 +137,7 @@ function VoiceTypingPage() {
     wantsListeningRef.current = true;
     const recognition = new RecognitionConstructor();
     recognition.lang = typeof navigator !== "undefined" ? navigator.language || "en-US" : "en-US";
-    recognition.continuous = false;
+    recognition.continuous = true;
     recognition.interimResults = true;
     recognition.onresult = (event) => {
       let preview = "";
@@ -176,16 +179,10 @@ function VoiceTypingPage() {
       }
     };
     recognition.onend = () => {
-      if (!wantsListeningRef.current) {
-        setListening(false);
-        return;
-      }
-      restartTimerRef.current = window.setTimeout(() => {
-        restartTimerRef.current = null;
-        if (!wantsListeningRef.current || recognitionRef.current !== recognition) return;
-        recognitionRef.current = null;
-        startListeningRef.current();
-      }, 200);
+      wantsListeningRef.current = false;
+      recognitionRef.current = null;
+      setListening(false);
+      setInterimTranscript("");
     };
     recognitionRef.current = recognition;
     try {
@@ -199,14 +196,9 @@ function VoiceTypingPage() {
     }
   }, [stopListening, userId]);
 
-  useEffect(() => {
-    startListeningRef.current = startListening;
-  }, [startListening]);
-
   useEffect(
     () => () => {
       wantsListeningRef.current = false;
-      if (restartTimerRef.current !== null) window.clearTimeout(restartTimerRef.current);
       try {
         recognitionRef.current?.stop();
       } catch {
@@ -216,6 +208,39 @@ function VoiceTypingPage() {
     },
     [],
   );
+
+  useEffect(() => {
+    if (!saveMessage) return;
+    const timeoutId = window.setTimeout(() => setSaveMessage(""), 3500);
+    return () => window.clearTimeout(timeoutId);
+  }, [saveMessage]);
+
+  function saveDictation() {
+    const content = transcript.trim();
+    if (!content) return;
+    try {
+      const saved = JSON.parse(
+        window.localStorage.getItem(SAVED_PRACTICES_KEY) ?? "[]",
+      ) as SavedDictation[];
+      if (saved.some((item) => item.text === content)) {
+        setSaveMessage("This dictation is already in your Library.");
+        return;
+      }
+      const next: SavedDictation[] = [
+        {
+          id: crypto.randomUUID(),
+          title: content.split(/[.!?]/)[0]?.slice(0, 48) || "Voice dictation",
+          text: content,
+          savedAt: new Date().toISOString(),
+        },
+        ...saved,
+      ].slice(0, 20);
+      window.localStorage.setItem(SAVED_PRACTICES_KEY, JSON.stringify(next));
+      setSaveMessage("Dictation saved to your Library.");
+    } catch {
+      setSaveMessage("Could not save this dictation. Check your browser storage and try again.");
+    }
+  }
 
   if (checking) return <main className="auth-page min-h-screen" aria-busy="true" />;
 
@@ -249,6 +274,11 @@ function VoiceTypingPage() {
           </p>
         )}
         {!supported && <p className="auth-error">Use Chrome or Edge for live voice typing.</p>}
+        {saveMessage && (
+          <p className="auth-message" role="status">
+            {saveMessage}
+          </p>
+        )}
         <div className="voice-typing-actions">
           <button
             type="button"
@@ -258,6 +288,14 @@ function VoiceTypingPage() {
           >
             {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
             {listening ? "Stop dictation" : "Start dictation"}
+          </button>
+          <button
+            type="button"
+            className="settings-billing-link"
+            onClick={saveDictation}
+            disabled={!transcript.trim()}
+          >
+            <BookmarkPlus className="h-4 w-4" /> Save to Library
           </button>
           <Link to="/practice" className="settings-billing-link">
             <ArrowLeft className="h-4 w-4" /> Back to practice

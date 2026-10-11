@@ -93,7 +93,7 @@ function SavedPracticesPage() {
       <SiteNavbar brandTo="/practice" />
       <section className="account-page-content">
         <p className="practice-kicker">YOUR LIBRARY</p>
-        <h1>Saved practices</h1>
+        <h1>Library</h1>
         <p className="account-page-intro">Keep passages close for your next speaking session.</p>
         {deletedTitle && (
           <div

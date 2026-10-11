@@ -57,7 +57,7 @@ function LandingPage() {
 
   return (
     <main className="landing-page">
-      <SiteNavbar brandText="Rator" brandTo="/" showMenu={false}>
+      <SiteNavbar brandText="rator" brandTo="/" showMenu={false}>
         <nav className="landing-nav" aria-label="Account actions">
           <Link to="/sign-in">Sign In</Link>
           <Link to="/sign-up" className="landing-nav-cta">

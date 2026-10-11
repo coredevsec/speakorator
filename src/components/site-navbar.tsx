@@ -1,12 +1,12 @@
-import { Link } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { BookMarked, CreditCard, LogOut, Menu, Mic, Settings, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 
 import { supabase } from "../lib/supabase";
 
 export function SiteNavbar({
-  brandText = "Rator",
+  brandText = "rator",
   brandTo = "/",
   showMenu = true,
   children,
@@ -16,9 +16,16 @@ export function SiteNavbar({
   showMenu?: boolean;
   children?: ReactNode;
 }) {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+
+  async function signOut() {
+    await supabase?.auth.signOut();
+    setMenuOpen(false);
+    void navigate({ to: "/sign-in", replace: true });
+  }
 
   useEffect(() => {
     if (!supabase) return;
@@ -71,19 +78,19 @@ export function SiteNavbar({
             {menuOpen && (
               <nav className="account-menu" aria-label="Site navigation">
                 <Link to="/practice" onClick={() => setMenuOpen(false)}>
-                  Practice
+                  <Mic className="h-4 w-4" /> Practice
                 </Link>
                 <Link to="/voice-typing" onClick={() => setMenuOpen(false)}>
-                  Voice typing
+                  <Mic className="h-4 w-4" /> Voice typing
                 </Link>
                 <Link to="/saved-practices" onClick={() => setMenuOpen(false)}>
-                  Saved practices
+                  <BookMarked className="h-4 w-4" /> Library
                 </Link>
                 <Link to="/settings" onClick={() => setMenuOpen(false)}>
-                  Settings
+                  <Settings className="h-4 w-4" /> Settings
                 </Link>
                 <Link to="/billing" onClick={() => setMenuOpen(false)}>
-                  Membership
+                  <CreditCard className="h-4 w-4" /> Membership
                 </Link>
                 {!signedIn && (
                   <>
@@ -94,6 +101,11 @@ export function SiteNavbar({
                       Sign up
                     </Link>
                   </>
+                )}
+                {signedIn && (
+                  <button type="button" role="menuitem" onClick={() => void signOut()}>
+                    <LogOut className="h-4 w-4" /> Sign out
+                  </button>
                 )}
               </nav>
             )}

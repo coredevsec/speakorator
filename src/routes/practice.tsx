@@ -172,14 +172,24 @@ function PracticePage() {
       return wordSentence;
     });
   }, [words]);
-  const activeSentence = sentenceForWord[Math.min(currentIdx, Math.max(words.length - 1, 0))] ?? 0;
+  const previewIdx = useMemo(() => {
+    let cursor = currentIdx;
+    for (const spoken of splitWords(interim).map(normalize).filter(Boolean)) {
+      const target = normalized[cursor];
+      if (target && (target === spoken || target.startsWith(spoken) || spoken.startsWith(target))) {
+        cursor += 1;
+      }
+    }
+    return cursor;
+  }, [currentIdx, interim, normalized]);
+  const visibleIdx = Math.min(Math.max(currentIdx, previewIdx), normalized.length);
+  const activeSentence = sentenceForWord[Math.min(visibleIdx, Math.max(words.length - 1, 0))] ?? 0;
 
   const recogRef = useRef<SpeechRecognitionLike | null>(null);
   const cursorRef = useRef(0);
   const startTimeRef = useRef<number | null>(null);
   const wantListeningRef = useRef(false);
   const activeWordRef = useRef<HTMLSpanElement | null>(null);
-  const recognitionRestartRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!supabase) {
@@ -316,14 +326,10 @@ function PracticePage() {
 
   useEffect(() => {
     activeWordRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
-  }, [currentIdx]);
+  }, [currentIdx, visibleIdx]);
 
   const stopRecognition = useCallback(() => {
     wantListeningRef.current = false;
-    if (recognitionRestartRef.current !== null) {
-      window.clearTimeout(recognitionRestartRef.current);
-      recognitionRestartRef.current = null;
-    }
     try {
       recogRef.current?.stop();
     } catch {
@@ -365,7 +371,7 @@ function PracticePage() {
     setMicError(null);
     wantListeningRef.current = true;
     const rec = new Ctor();
-    rec.lang = "en-US";
+    rec.lang = typeof navigator !== "undefined" ? navigator.language || "en-US" : "en-US";
     rec.continuous = true;
     rec.interimResults = true;
 
@@ -402,25 +408,17 @@ function PracticePage() {
         );
         wantListeningRef.current = false;
       } else if (e.error === "no-speech") {
-        // Benign: onend will restart.
+        // Silence is expected between phrases; continuous recognition stays active.
+      } else if (e.error === "aborted") {
+        // Browser-initiated aborts can happen during device audio-session changes.
       } else if (e.error) {
         setMicError(`Microphone error: ${e.error}. You can still practice with tap-to-advance.`);
         wantListeningRef.current = false;
       }
     };
     rec.onend = () => {
-      if (wantListeningRef.current) {
-        recognitionRestartRef.current = window.setTimeout(() => {
-          recognitionRestartRef.current = null;
-          if (!wantListeningRef.current || recogRef.current !== rec) return;
-          try {
-            rec.start();
-          } catch {
-            setListening(false);
-          }
-        }, 350);
-        return;
-      }
+      wantListeningRef.current = false;
+      if (recogRef.current === rec) recogRef.current = null;
       setListening(false);
     };
 
@@ -429,6 +427,8 @@ function PracticePage() {
       rec.start();
       setListening(true);
     } catch {
+      wantListeningRef.current = false;
+      recogRef.current = null;
       setMicError("Could not start the microphone. Please try again.");
     }
   }, [advanceWithTranscript]);
@@ -1041,8 +1041,8 @@ function PracticePage() {
                   hidden={oneSentenceAtATime && sentenceForWord[i] !== activeSentence}
                 >
                   <span
-                    ref={i === currentIdx ? activeWordRef : undefined}
-                    className={`reader-word ${i < currentIdx ? "spoken" : i === currentIdx ? "current" : "upcoming"}`}
+                    ref={i === visibleIdx ? activeWordRef : undefined}
+                    className={`reader-word ${i < currentIdx ? "spoken" : i === visibleIdx ? "current" : "upcoming"}`}
                   >
                     {word}
                   </span>{" "}
