@@ -1,6 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
-  ArrowLeft,
   ArrowRight,
   BookmarkCheck,
   Check,
@@ -14,6 +13,7 @@ import {
 import { useEffect, useState } from "react";
 
 import { supabase } from "../lib/supabase";
+import { SiteNavbar } from "../components/site-navbar";
 
 const PLANS = [
   {
@@ -77,7 +77,8 @@ function BillingPage() {
       if (!active) return;
       if (!error && subscriptionData) {
         setActiveSubscription({
-          plan_key: typeof subscriptionData.plan_key === "string" ? subscriptionData.plan_key : "monthly",
+          plan_key:
+            typeof subscriptionData.plan_key === "string" ? subscriptionData.plan_key : "monthly",
           status: typeof subscriptionData.status === "string" ? subscriptionData.status : "active",
         });
       }
@@ -132,17 +133,7 @@ function BillingPage() {
 
   return (
     <main className="account-page">
-      <header className="account-page-header">
-        <Link to="/practice" className="account-page-brand">
-          <span className="brand-mark-frame">
-            <img src="/orator-mark.svg" alt="" className="brand-mark-image" />
-          </span>
-          <span>Orator</span>
-        </Link>
-        <Link to="/practice" className="account-back-link">
-          <ArrowLeft className="h-4 w-4" /> Practice
-        </Link>
-      </header>
+      <SiteNavbar brandTo="/practice" />
       <section className="account-page-content billing-content">
         <section className="membership-hero">
           <div className="membership-hero-copy">
@@ -249,15 +240,22 @@ function BillingPage() {
             <div className="billing-active-status">
               <div className="billing-plan billing-plan-featured">
                 <div className="billing-plan-heading">
-                  <h3>{activeSubscription.plan_key[0].toUpperCase() + activeSubscription.plan_key.slice(1)}</h3>
+                  <h3>
+                    {activeSubscription.plan_key[0].toUpperCase() +
+                      activeSubscription.plan_key.slice(1)}
+                  </h3>
                   <Sparkles className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <p className="billing-price">
                   {PLANS.find((plan) => plan.key === activeSubscription.plan_key)?.price ?? "$0.00"}
-                  <span>{PLANS.find((plan) => plan.key === activeSubscription.plan_key)?.cadence ?? "active"}</span>
+                  <span>
+                    {PLANS.find((plan) => plan.key === activeSubscription.plan_key)?.cadence ??
+                      "active"}
+                  </span>
                 </p>
                 <p className="billing-plan-description">
-                  Premium is active for your account. You can continue practicing with your unlocked tools.
+                  Premium is active for your account. You can continue practicing with your unlocked
+                  tools.
                 </p>
                 <p className="billing-plan-includes">
                   <Check className="h-4 w-4" /> Status: {activeSubscription.status}

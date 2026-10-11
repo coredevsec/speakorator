@@ -16,6 +16,7 @@ import { Route as SavedPracticesRouteImport } from './routes/saved-practices'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as VoiceTypingRouteImport } from './routes/voice-typing'
 import { Route as ApiFlutterwaveCheckoutRouteImport } from './routes/api/flutterwave-checkout'
 import { Route as ApiFlutterwaveWebhookRouteImport } from './routes/api/flutterwave-webhook'
 
@@ -54,6 +55,11 @@ const SignUpRoute = SignUpRouteImport.update({
   path: '/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VoiceTypingRoute = VoiceTypingRouteImport.update({
+  id: '/voice-typing',
+  path: '/voice-typing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiFlutterwaveCheckoutRoute = ApiFlutterwaveCheckoutRouteImport.update({
   id: '/api/flutterwave-checkout',
   path: '/api/flutterwave-checkout',
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/voice-typing': typeof VoiceTypingRoute
   '/api/flutterwave-checkout': typeof ApiFlutterwaveCheckoutRoute
   '/api/flutterwave-webhook': typeof ApiFlutterwaveWebhookRoute
 }
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/voice-typing': typeof VoiceTypingRoute
   '/api/flutterwave-checkout': typeof ApiFlutterwaveCheckoutRoute
   '/api/flutterwave-webhook': typeof ApiFlutterwaveWebhookRoute
 }
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/voice-typing': typeof VoiceTypingRoute
   '/api/flutterwave-checkout': typeof ApiFlutterwaveCheckoutRoute
   '/api/flutterwave-webhook': typeof ApiFlutterwaveWebhookRoute
 }
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sign-in'
     | '/sign-up'
+    | '/voice-typing'
     | '/api/flutterwave-checkout'
     | '/api/flutterwave-webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sign-in'
     | '/sign-up'
+    | '/voice-typing'
     | '/api/flutterwave-checkout'
     | '/api/flutterwave-webhook'
   id:
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sign-in'
     | '/sign-up'
+    | '/voice-typing'
     | '/api/flutterwave-checkout'
     | '/api/flutterwave-webhook'
   fileRoutesById: FileRoutesById
@@ -143,6 +155,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
+  VoiceTypingRoute: typeof VoiceTypingRoute
   ApiFlutterwaveCheckoutRoute: typeof ApiFlutterwaveCheckoutRoute
   ApiFlutterwaveWebhookRoute: typeof ApiFlutterwaveWebhookRoute
 }
@@ -198,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/voice-typing': {
+      id: '/voice-typing'
+      path: '/voice-typing'
+      fullPath: '/voice-typing'
+      preLoaderRoute: typeof VoiceTypingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/flutterwave-checkout': {
       id: '/api/flutterwave-checkout'
       path: '/api/flutterwave-checkout'
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
+  VoiceTypingRoute: VoiceTypingRoute,
   ApiFlutterwaveCheckoutRoute: ApiFlutterwaveCheckoutRoute,
   ApiFlutterwaveWebhookRoute: ApiFlutterwaveWebhookRoute,
 }

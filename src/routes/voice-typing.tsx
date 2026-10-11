@@ -1,0 +1,275 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, Mic, MicOff } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { SiteNavbar } from "../components/site-navbar";
+import { supabase } from "../lib/supabase";
+import { checkSubscriptionAccess } from "../lib/subscription-access";
+
+const PRACTICE_TOOLS_KEY = "orator.practice-tools.";
+
+type RecognitionResult = {
+  isFinal: boolean;
+  0: { transcript: string };
+};
+
+type RecognitionEvent = {
+  resultIndex: number;
+  results: ArrayLike<RecognitionResult>;
+};
+
+type Recognition = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onresult: ((event: RecognitionEvent) => void) | null;
+  onend: (() => void) | null;
+  onerror: ((event: { error?: string }) => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+
+function getRecognitionConstructor(): (new () => Recognition) | null {
+  if (typeof window === "undefined") return null;
+  const browserWindow = window as unknown as Record<string, unknown>;
+  return (browserWindow.SpeechRecognition ?? browserWindow.webkitSpeechRecognition ?? null) as
+    (new () => Recognition) | null;
+}
+
+function saveVoiceTypingPreference(userId: string, enabled: boolean) {
+  try {
+    const key = `${PRACTICE_TOOLS_KEY}${userId}`;
+    const preferences = JSON.parse(window.localStorage.getItem(key) ?? "{}") as Record<
+      string,
+      unknown
+    >;
+    window.localStorage.setItem(
+      key,
+      JSON.stringify({ ...preferences, voiceTypingEnabled: enabled }),
+    );
+  } catch {
+    window.localStorage.setItem(
+      `${PRACTICE_TOOLS_KEY}${userId}`,
+      JSON.stringify({ voiceTypingEnabled: enabled }),
+    );
+  }
+}
+
+export const Route = createFileRoute("/voice-typing")({
+  component: VoiceTypingPage,
+});
+
+function VoiceTypingPage() {
+  const navigate = useNavigate();
+  const [userId, setUserId] = useState("");
+  const [checking, setChecking] = useState(true);
+  const [supported, setSupported] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [shouldResume, setShouldResume] = useState(false);
+  const [transcript, setTranscript] = useState("");
+  const [interimTranscript, setInterimTranscript] = useState("");
+  const [error, setError] = useState("");
+  const recognitionRef = useRef<Recognition | null>(null);
+  const wantsListeningRef = useRef(false);
+  const restartTimerRef = useRef<number | null>(null);
+  const autoStartedRef = useRef(false);
+
+  useEffect(() => {
+    setSupported(getRecognitionConstructor() !== null);
+  }, []);
+
+  useEffect(() => {
+    if (!supabase) {
+      void navigate({ to: "/sign-in", replace: true });
+      return;
+    }
+    let active = true;
+    void supabase.auth.getSession().then(async ({ data }) => {
+      if (!active) return;
+      const user = data.session?.user;
+      if (!user) {
+        void navigate({ to: "/sign-in", replace: true });
+        return;
+      }
+      const access = await checkSubscriptionAccess(user.id);
+      if (!active) return;
+      if (access.error || !access.allowed) {
+        void navigate({ to: "/billing", replace: true });
+        return;
+      }
+      setUserId(user.id);
+      try {
+        const preferences = JSON.parse(
+          window.localStorage.getItem(`${PRACTICE_TOOLS_KEY}${user.id}`) ?? "{}",
+        ) as { voiceTypingEnabled?: boolean };
+        setShouldResume(preferences.voiceTypingEnabled === true);
+      } catch {
+        setShouldResume(false);
+      }
+      setChecking(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, [navigate]);
+
+  const stopListening = useCallback(
+    (savePreference = true) => {
+      wantsListeningRef.current = false;
+      if (restartTimerRef.current !== null) {
+        window.clearTimeout(restartTimerRef.current);
+        restartTimerRef.current = null;
+      }
+      try {
+        recognitionRef.current?.stop();
+      } catch {
+        // The browser may already have stopped recognition.
+      }
+      recognitionRef.current = null;
+      setListening(false);
+      setInterimTranscript("");
+      setShouldResume(false);
+      if (savePreference && userId) saveVoiceTypingPreference(userId, false);
+    },
+    [userId],
+  );
+
+  const startListening = useCallback(() => {
+    const RecognitionConstructor = getRecognitionConstructor();
+    if (!RecognitionConstructor) {
+      setError("Voice typing is not supported in this browser. Try Chrome or Edge.");
+      return;
+    }
+    setError("");
+    wantsListeningRef.current = true;
+    const recognition = new RecognitionConstructor();
+    recognition.lang = "en-US";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.onresult = (event) => {
+      let preview = "";
+      for (let index = event.resultIndex; index < event.results.length; index += 1) {
+        const result = event.results[index];
+        if (!result) continue;
+        const spokenText = result[0].transcript.trim();
+        if (result.isFinal && spokenText) {
+          setTranscript(
+            (current) => `${current.trimEnd()}${current.trim() ? " " : ""}${spokenText}`,
+          );
+        } else if (!result.isFinal) {
+          preview += result[0].transcript;
+        }
+      }
+      setInterimTranscript(preview.trim());
+    };
+    recognition.onerror = (event) => {
+      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+        setError("Microphone access was denied. Allow microphone access in your browser settings.");
+        stopListening();
+      } else if (event.error === "audio-capture") {
+        setError("No microphone is available. Connect or enable one, then try again.");
+        stopListening();
+      } else if (event.error !== "no-speech" && event.error) {
+        setError(`Voice typing error: ${event.error}. Please try again.`);
+        stopListening();
+      }
+    };
+    recognition.onend = () => {
+      if (!wantsListeningRef.current) {
+        setListening(false);
+        return;
+      }
+      restartTimerRef.current = window.setTimeout(() => {
+        restartTimerRef.current = null;
+        if (!wantsListeningRef.current || recognitionRef.current !== recognition) return;
+        try {
+          recognition.start();
+        } catch {
+          setListening(false);
+          wantsListeningRef.current = false;
+        }
+      }, 350);
+    };
+    recognitionRef.current = recognition;
+    try {
+      recognition.start();
+      setListening(true);
+      setShouldResume(true);
+      if (userId) saveVoiceTypingPreference(userId, true);
+    } catch {
+      wantsListeningRef.current = false;
+      setListening(false);
+      setError("Could not start voice typing. Please try again.");
+    }
+  }, [stopListening, userId]);
+
+  useEffect(() => {
+    if (!shouldResume || !supported || !userId || autoStartedRef.current) return;
+    autoStartedRef.current = true;
+    startListening();
+  }, [shouldResume, startListening, supported, userId]);
+
+  useEffect(
+    () => () => {
+      wantsListeningRef.current = false;
+      if (restartTimerRef.current !== null) window.clearTimeout(restartTimerRef.current);
+      try {
+        recognitionRef.current?.stop();
+      } catch {
+        // The browser may already have stopped recognition.
+      }
+      recognitionRef.current = null;
+    },
+    [],
+  );
+
+  if (checking) return <main className="auth-page min-h-screen" aria-busy="true" />;
+
+  return (
+    <main className="account-page min-h-screen">
+      <SiteNavbar brandTo="/practice" />
+      <section className="voice-typing-page">
+        <p className="practice-kicker">ORATOR PLUS</p>
+        <h1>Voice typing</h1>
+        <p className="account-page-intro">
+          Speak naturally. Your words will appear here as they are recognized.
+        </p>
+        <label className="sr-only" htmlFor="voice-transcript">
+          Dictated text
+        </label>
+        <textarea
+          id="voice-transcript"
+          className="voice-typing-editor"
+          value={transcript}
+          onChange={(event) => setTranscript(event.target.value)}
+          placeholder=""
+        />
+        {interimTranscript && (
+          <p className="voice-typing-status" aria-live="polite">
+            Hearing: {interimTranscript}
+          </p>
+        )}
+        {error && (
+          <p className="auth-error" role="alert">
+            {error}
+          </p>
+        )}
+        {!supported && <p className="auth-error">Use Chrome or Edge for live voice typing.</p>}
+        <div className="voice-typing-actions">
+          <button
+            type="button"
+            className="settings-save"
+            onClick={() => (listening ? stopListening() : startListening())}
+            disabled={!supported}
+          >
+            {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            {listening ? "Stop dictation" : "Start dictation"}
+          </button>
+          <Link to="/practice" className="settings-billing-link">
+            <ArrowLeft className="h-4 w-4" /> Back to practice
+          </Link>
+        </div>
+      </section>
+    </main>
+  );
+}

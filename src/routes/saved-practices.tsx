@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, BookMarked, CheckCircle2, Trash2, X } from "lucide-react";
+import { BookMarked, CheckCircle2, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { SiteNavbar } from "../components/site-navbar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -89,17 +90,7 @@ function SavedPracticesPage() {
 
   return (
     <main className="account-page">
-      <header className="account-page-header">
-        <Link to="/practice" className="account-page-brand">
-          <span className="brand-mark-frame">
-            <img src="/orator-mark.svg" alt="" className="brand-mark-image" />
-          </span>
-          <span>Orator</span>
-        </Link>
-        <Link to="/" className="account-back-link">
-          <ArrowLeft className="h-4 w-4" /> Practice
-        </Link>
-      </header>
+      <SiteNavbar brandTo="/practice" />
       <section className="account-page-content">
         <p className="practice-kicker">YOUR LIBRARY</p>
         <h1>Saved practices</h1>

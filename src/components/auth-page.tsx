@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Eye, EyeOff, LoaderCircle } from "lucide-react";
+import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 
+import { SiteNavbar } from "./site-navbar";
 import { supabase } from "../lib/supabase";
 
 type AuthPageProps = {
@@ -202,8 +203,7 @@ export function AuthPage({ mode }: AuthPageProps) {
               surname: surname.trim(),
               country: country === "Other" ? otherCountry.trim() : country,
               state_region: stateRegion.trim(),
-              occupation:
-                (occupation === "Other" ? otherOccupation.trim() : occupation) || null,
+              occupation: (occupation === "Other" ? otherOccupation.trim() : occupation) || null,
               phone: phone.trim(),
             },
           },
@@ -260,20 +260,10 @@ export function AuthPage({ mode }: AuthPageProps) {
 
   return (
     <main className="auth-page">
-      <header className="auth-header">
-        <Link to="/" className="auth-brand">
-          <span className="brand-mark-frame">
-            <img src="/orator-mark.svg" alt="" className="brand-mark-image" />
-          </span>
-          <span>Orator</span>
-        </Link>
-      </header>
+      <SiteNavbar />
 
       <section className="auth-content">
         <div className="auth-heading">
-          <Link to="/" className="auth-icon" aria-label="Back to landing page">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
           <p className="practice-kicker">SPEAKING PRACTICE</p>
           <h1>{isSignUp ? "Create your account" : "Welcome back"}</h1>
           <p>

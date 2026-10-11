@@ -1,0 +1,351 @@
+.site-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 4.25rem;
+  padding: 0.55rem clamp(1rem, 4vw, 3rem);
+  border-bottom: 1px solid #294057;
+  background: #071322ed;
+  backdrop-filter: blur(14px);
+}
+.site-navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: #f3f7fc;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-decoration: none;
+}
+.site-navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.site-navbar .account-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+}
+.landing-nav {
+  align-items: center;
+}
+.landing-nav > a {
+  min-height: 2.35rem;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.86rem;
+}
+.landing-page {
+  overflow: clip;
+}
+.landing-nav .landing-nav-cta {
+  padding: 0.45rem 0.85rem;
+}
+.account-page-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #071322ed;
+  backdrop-filter: blur(14px);
+}
+.auth-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #071322ed;
+  backdrop-filter: blur(14px);
+}
+.account-settings-heading {
+  grid-template-columns: auto 1fr;
+  justify-items: start;
+  align-items: center;
+  column-gap: 1rem;
+  text-align: left;
+}
+.account-settings-heading .account-page-icon {
+  grid-row: 1 / span 3;
+  grid-column: 1;
+  margin: 0;
+}
+.account-settings-heading .practice-kicker,
+.account-settings-heading h1,
+.account-settings-heading .account-page-intro {
+  grid-column: 2;
+  margin: 0.1rem 0;
+}
+.account-settings-heading .practice-kicker {
+  justify-content: flex-start;
+}
+.reader-focus {
+  --background: #071322;
+}
+.reader-focus .reading-stage {
+  background-color: var(--background);
+}
+.practice-page .practice-intro h1 {
+  font-size: 2.15rem;
+}
+.practice-page .practice-intro > p:last-child,
+.practice-page .workspace-heading p {
+  font-size: 0.9rem;
+}
+.writing-input {
+  min-height: 20rem;
+  font-size: 1.08rem;
+}
+.workspace-start-row button,
+.workspace-options-main select,
+.premium-tool-button,
+.sentence-option {
+  font-size: 0.84rem;
+}
+.auth-form input,
+.auth-form select,
+.auth-form textarea {
+  font-size: 0.9rem;
+  min-height: 2.65rem;
+}
+.auth-submit,
+.google-auth-button,
+.auth-secondary-action {
+  min-height: 2.65rem;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.9rem;
+}
+.billing-active-status {
+  max-width: 34rem;
+}
+.voice-typing-page {
+  width: min(100% - 2rem, 58rem);
+  margin: 0 auto;
+  padding: clamp(1.5rem, 5vw, 3.5rem) 0;
+}
+.voice-typing-editor {
+  display: block;
+  width: 100%;
+  min-height: min(52vh, 32rem);
+  resize: vertical;
+  padding: 1.2rem;
+  border: 1px solid #40566b;
+  border-radius: 0.5rem;
+  background: #091727;
+  color: #f3f7fc;
+  font: 1rem/1.75 var(--font-display);
+  outline: none;
+}
+.voice-typing-editor:focus {
+  border-color: #6ad8c5;
+  box-shadow: 0 0 0 3px #6ad8c533;
+}
+.voice-typing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+.voice-typing-status {
+  min-height: 1.5rem;
+  margin-top: 0.75rem;
+  color: #9db1c8;
+  font-size: 0.9rem;
+}
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+  .site-navbar {
+    min-height: 3.65rem;
+    padding: 0.45rem 0.8rem;
+  }
+  .site-navbar-brand {
+    gap: 0.45rem;
+    font-size: 0.95rem;
+  }
+  .site-navbar .brand-mark-frame {
+    width: 2rem;
+    height: 2rem;
+  }
+  .site-navbar-actions {
+    gap: 0.35rem;
+  }
+  .landing-nav {
+    gap: 0.4rem;
+  }
+  .landing-nav > a {
+    min-height: 2rem;
+    padding: 0.35rem 0.55rem;
+    font-size: 0.76rem;
+  }
+  .landing-nav .landing-nav-cta {
+    padding: 0.35rem 0.6rem;
+  }
+  .landing-start-note {
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+  .account-page-header,
+  .auth-header {
+    min-height: 3.65rem;
+    padding: 0.45rem 0.8rem;
+  }
+  .account-page-content {
+    padding-top: 1.5rem;
+  }
+  .account-settings-heading {
+    column-gap: 0.7rem;
+  }
+  .account-settings-heading .account-page-icon {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+  .account-settings-heading h1 {
+    font-size: 1.5rem;
+  }
+  .account-settings-heading .account-page-intro {
+    font-size: 0.82rem;
+  }
+  .settings-card,
+  .appearance-settings {
+    padding: 1rem;
+  }
+  .settings-name-fields,
+  .appearance-color-row {
+    grid-template-columns: 1fr;
+  }
+  .settings-card input,
+  .appearance-color-row input {
+    min-height: 2.35rem;
+    font-size: 0.84rem;
+  }
+  .settings-save,
+  .settings-signout,
+  .settings-billing-link,
+  .appearance-actions button {
+    min-height: 2.35rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.82rem;
+  }
+  .practice-page {
+    padding: 1.5rem 0.85rem;
+  }
+  .practice-page .practice-intro {
+    margin-bottom: 1.25rem;
+  }
+  .practice-page .practice-intro h1 {
+    font-size: 1.7rem;
+  }
+  .practice-page .practice-intro > p:last-child,
+  .practice-page .workspace-heading p {
+    font-size: 0.8rem;
+  }
+  .writing-input {
+    min-height: 22rem;
+    padding: 0.9rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .writing-input::placeholder {
+    font-size: 0.82rem;
+  }
+  .workspace-start-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .workspace-start-row .start-reading-button,
+  .workspace-options-main select {
+    min-height: 2.4rem;
+    font-size: 0.8rem;
+  }
+  .workspace-start-actions {
+    width: 100%;
+  }
+  .workspace-start-actions button {
+    width: 100%;
+  }
+  .premium-tool-button,
+  .sentence-option {
+    min-height: 3rem;
+    padding: 0.65rem;
+    font-size: 0.78rem;
+  }
+  .premium-tool-button strong,
+  .sentence-option span {
+    font-size: 0.82rem;
+  }
+  .auth-content {
+    padding: 1.25rem 0.85rem;
+  }
+  .auth-heading h1 {
+    font-size: 1.65rem;
+  }
+  .auth-panel {
+    padding: 1rem;
+  }
+  .auth-form input,
+  .auth-form select,
+  .auth-form textarea {
+    min-height: 2.35rem;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.82rem;
+  }
+  .auth-submit,
+  .google-auth-button,
+  .auth-secondary-action {
+    min-height: 2.35rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.82rem;
+  }
+  .auth-form label {
+    font-size: 0.78rem;
+  }
+  .billing-content {
+    padding-top: 1.25rem;
+  }
+  .membership-hero {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+  .membership-hero h1 {
+    font-size: 1.65rem;
+  }
+  .membership-hero-copy > p:not(.practice-kicker) {
+    font-size: 0.85rem;
+  }
+  .membership-benefits,
+  .membership-plans-section {
+    margin-top: 1.5rem;
+  }
+  .membership-benefit-grid {
+    grid-template-columns: 1fr;
+  }
+  .membership-benefit-grid h3 {
+    font-size: 0.95rem;
+  }
+  .membership-benefit-grid p,
+  .billing-plan-description {
+    font-size: 0.82rem;
+  }
+  .billing-plan {
+    padding: 1rem;
+  }
+  .voice-typing-page {
+    padding-top: 1.25rem;
+  }
+  .voice-typing-page h1 {
+    font-size: 1.6rem;
+  }
+  .voice-typing-editor {
+    min-height: 52vh;
+    padding: 0.85rem;
+    font-size: 0.9rem;
+  }
+  .voice-typing-actions button {
+    min-height: 2.35rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.82rem;
+  }
+}

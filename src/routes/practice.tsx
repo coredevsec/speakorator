@@ -16,14 +16,13 @@ import {
   ArrowLeft,
   Pause,
   Play,
-  Menu,
-  Settings,
   LockKeyhole,
   Palette,
   Sparkles,
   AlignLeft,
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
+import { SiteNavbar } from "../components/site-navbar";
 import { checkSubscriptionAccess } from "../lib/subscription-access";
 import {
   getPresentationPreferences,
@@ -162,12 +161,8 @@ function PracticePage() {
   const [savePassageOnStart, setSavePassageOnStart] = useState(false);
   const [voiceTypingEnabled, setVoiceTypingEnabled] = useState(false);
   const [settingsUserId, setSettingsUserId] = useState("");
-  const [dictating, setDictating] = useState(false);
-  const [dictationInterim, setDictationInterim] = useState("");
   const [savedText, setSavedText] = useState("");
   const [controlsVisible, setControlsVisible] = useState(true);
-  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
-  const accountMenuRef = useRef<HTMLDivElement | null>(null);
 
   const sentenceForWord = useMemo(() => {
     let sentence = 0;
@@ -184,7 +179,7 @@ function PracticePage() {
   const startTimeRef = useRef<number | null>(null);
   const wantListeningRef = useRef(false);
   const activeWordRef = useRef<HTMLSpanElement | null>(null);
-  const voiceTypingResumeAttemptedRef = useRef("");
+  const recognitionRestartRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!supabase) {
@@ -312,17 +307,6 @@ function PracticePage() {
   }, []);
 
   useEffect(() => {
-    if (!accountMenuOpen) return;
-    const closeOnOutsideClick = (event: PointerEvent) => {
-      if (!accountMenuRef.current?.contains(event.target as Node)) {
-        setAccountMenuOpen(false);
-      }
-    };
-    document.addEventListener("pointerdown", closeOnOutsideClick);
-    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
-  }, [accountMenuOpen]);
-
-  useEffect(() => {
     if (phase !== "reading") return;
     const id = setInterval(() => {
       if (startTimeRef.current) setElapsed((Date.now() - startTimeRef.current) / 1000);
@@ -336,6 +320,10 @@ function PracticePage() {
 
   const stopRecognition = useCallback(() => {
     wantListeningRef.current = false;
+    if (recognitionRestartRef.current !== null) {
+      window.clearTimeout(recognitionRestartRef.current);
+      recognitionRestartRef.current = null;
+    }
     try {
       recogRef.current?.stop();
     } catch {
@@ -343,8 +331,6 @@ function PracticePage() {
     }
     recogRef.current = null;
     setListening(false);
-    setDictating(false);
-    setDictationInterim("");
   }, []);
 
   const advanceWithTranscript = useCallback(
@@ -352,19 +338,12 @@ function PracticePage() {
       const heard = splitWords(transcript).map(normalize).filter(Boolean);
       if (heard.length === 0) return;
       let cursor = cursorRef.current;
-      const LOOKAHEAD = 6;
       for (const h of heard) {
-        const limit = Math.min(cursor + LOOKAHEAD, normalized.length);
-        for (let i = cursor; i < limit; i++) {
-          const target = normalized[i];
-          if (!target) continue;
-          if (target === h || target.startsWith(h) || h.startsWith(target)) {
-            cursor = i + 1;
-            break;
-          }
-        }
+        const target = normalized[cursor];
+        if (target && (target === h || target.startsWith(h) || h.startsWith(target))) cursor += 1;
       }
       if (cursor !== cursorRef.current) {
+        if (!startTimeRef.current) startTimeRef.current = Date.now();
         cursorRef.current = cursor;
         setCurrentIdx(cursor);
         setSpokenCount(cursor);
@@ -407,7 +386,6 @@ function PracticePage() {
       }
       if (interimText) {
         setInterim(interimText.trim());
-        advanceWithTranscript(interimText);
       } else {
         setInterim("");
       }
@@ -432,12 +410,16 @@ function PracticePage() {
     };
     rec.onend = () => {
       if (wantListeningRef.current) {
-        try {
-          rec.start();
-          return;
-        } catch {
-          // fallthrough
-        }
+        recognitionRestartRef.current = window.setTimeout(() => {
+          recognitionRestartRef.current = null;
+          if (!wantListeningRef.current || recogRef.current !== rec) return;
+          try {
+            rec.start();
+          } catch {
+            setListening(false);
+          }
+        }, 350);
+        return;
       }
       setListening(false);
     };
@@ -446,96 +428,10 @@ function PracticePage() {
     try {
       rec.start();
       setListening(true);
-      if (!startTimeRef.current) startTimeRef.current = Date.now();
     } catch {
       setMicError("Could not start the microphone. Please try again.");
     }
   }, [advanceWithTranscript]);
-
-  const startDictation = useCallback(() => {
-    if (!hasPaidAccess) {
-      void navigate({ to: "/billing" });
-      return;
-    }
-    const Ctor = getRecognitionCtor();
-    if (!Ctor) {
-      setMicError("Voice typing is not supported in this browser. Try Chrome or Edge.");
-      return;
-    }
-    setMicError(null);
-    wantListeningRef.current = true;
-    const rec = new Ctor();
-    rec.lang = "en-US";
-    rec.continuous = true;
-    rec.interimResults = true;
-
-    rec.onresult = (event) => {
-      let preview = "";
-      for (let index = event.resultIndex; index < event.results.length; index += 1) {
-        const result = event.results[index];
-        if (!result) continue;
-        const transcript = result[0].transcript.trim();
-        if (result.isFinal && transcript) {
-          setText((current) => `${current.trimEnd()}${current.trim() ? " " : ""}${transcript}`);
-          setSelectedSample("");
-        } else if (!result.isFinal) {
-          preview += result[0].transcript;
-        }
-      }
-      setDictationInterim(preview.trim());
-    };
-    rec.onerror = (event) => {
-      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
-        setMicError(
-          "Microphone access was denied. Allow microphone access in your browser settings.",
-        );
-        wantListeningRef.current = false;
-      } else if (event.error === "audio-capture") {
-        setMicError("No microphone is available. Connect or enable a microphone, then try again.");
-        wantListeningRef.current = false;
-      } else if (event.error !== "no-speech" && event.error) {
-        setMicError(`Voice typing error: ${event.error}. Please try again.`);
-        wantListeningRef.current = false;
-      }
-    };
-    rec.onend = () => {
-      if (wantListeningRef.current) {
-        try {
-          rec.start();
-          return;
-        } catch {
-          // fall through and stop dictation
-        }
-      }
-      setDictating(false);
-      setDictationInterim("");
-    };
-
-    recogRef.current = rec;
-    try {
-      rec.start();
-      setDictating(true);
-    } catch {
-      wantListeningRef.current = false;
-      setDictating(false);
-      setMicError("Could not start voice typing. Please try again.");
-    }
-  }, [hasPaidAccess, navigate]);
-
-  useEffect(() => {
-    if (
-      !currentUserId ||
-      settingsUserId !== currentUserId ||
-      !hasPaidAccess ||
-      !voiceTypingEnabled ||
-      phase !== "input" ||
-      voiceTypingResumeAttemptedRef.current === currentUserId
-    ) {
-      return;
-    }
-    voiceTypingResumeAttemptedRef.current = currentUserId;
-    startDictation();
-  }, [currentUserId, hasPaidAccess, phase, settingsUserId, startDictation, voiceTypingEnabled]);
 
   useEffect(() => () => stopRecognition(), [stopRecognition]);
 
@@ -664,9 +560,33 @@ function PracticePage() {
   };
 
   const startReading = () => {
-    if (dictating) stopRecognition();
     if (savePassageOnStart && hasPaidAccess && savedText !== text.trim()) savePractice();
     beginReading(text);
+  };
+
+  const openVoiceTyping = () => {
+    if (!hasPaidAccess) {
+      void navigate({ to: "/billing" });
+      return;
+    }
+    setVoiceTypingEnabled(true);
+    if (currentUserId) {
+      try {
+        const stored = JSON.parse(
+          window.localStorage.getItem(`${PRACTICE_TOOLS_KEY}${currentUserId}`) ?? "{}",
+        ) as Partial<PracticeToolPreferences>;
+        window.localStorage.setItem(
+          `${PRACTICE_TOOLS_KEY}${currentUserId}`,
+          JSON.stringify({ ...stored, voiceTypingEnabled: true }),
+        );
+      } catch {
+        window.localStorage.setItem(
+          `${PRACTICE_TOOLS_KEY}${currentUserId}`,
+          JSON.stringify({ voiceTypingEnabled: true }),
+        );
+      }
+    }
+    void navigate({ to: "/voice-typing" });
   };
 
   if (sessionState !== "authenticated") {
@@ -680,50 +600,8 @@ function PracticePage() {
   return (
     <main
       className={phase !== "input" ? "reader-focus min-h-screen" : "min-h-screen bg-background"}
-      style={presentationStyle}
     >
-      {phase === "input" && (
-        <header className="sticky top-0 z-30 border-b border-border bg-card/95 shadow-sm backdrop-blur">
-          <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-            <Link to="/practice" className="practice-brand-link">
-              <span className="brand-mark-frame">
-                <img src="/orator-mark.svg" alt="" className="brand-mark-image" />
-              </span>
-              <span className="font-[family-name:var(--font-display)] text-lg font-bold leading-tight">
-                Orator
-              </span>
-            </Link>
-            <div ref={accountMenuRef} className="account-menu-wrap">
-              <button
-                type="button"
-                className="account-menu-trigger"
-                aria-label="Open account menu"
-                aria-expanded={accountMenuOpen}
-                onClick={() => setAccountMenuOpen((open) => !open)}
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-              {accountMenuOpen && (
-                <div className="account-menu" role="menu">
-                  <Link
-                    to="/saved-practices"
-                    role="menuitem"
-                    onClick={() => setAccountMenuOpen(false)}
-                  >
-                    <BookMarked className="h-4 w-4" /> Saved practices
-                  </Link>
-                  <Link to="/settings" role="menuitem" onClick={() => setAccountMenuOpen(false)}>
-                    <Settings className="h-4 w-4" /> Settings
-                  </Link>
-                  <Link to="/billing" role="menuitem" onClick={() => setAccountMenuOpen(false)}>
-                    <CreditCard className="h-4 w-4" /> Membership
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-      )}
+      <SiteNavbar brandTo="/practice" />
 
       {phase === "input" && (
         <section className="practice-page mx-auto max-w-5xl px-6 py-12">
@@ -792,24 +670,6 @@ function PracticePage() {
               placeholder="Paste an article, speech, or a few sentences here…"
               className="writing-input"
             />
-            {(dictating || (micError && phase === "input")) && (
-              <p
-                className={`dictation-feedback ${micError ? "dictation-feedback-error" : ""}`}
-                role="status"
-                aria-live="polite"
-              >
-                {micError ? (
-                  micError
-                ) : (
-                  <>
-                    <Mic className="h-4 w-4" />
-                    <span>
-                      Listening. Speak naturally.{dictationInterim ? ` ${dictationInterim}` : ""}
-                    </span>
-                  </>
-                )}
-              </p>
-            )}
             <div className="workspace-options-main">
               <label className="sample-picker">
                 <select
@@ -890,41 +750,24 @@ function PracticePage() {
                     type="button"
                     aria-pressed={voiceTypingEnabled}
                     disabled={!supported && !voiceTypingEnabled}
-                    onClick={() => {
-                      if (voiceTypingEnabled) {
-                        setVoiceTypingEnabled(false);
-                        stopRecognition();
-                      } else {
-                        setVoiceTypingEnabled(true);
-                        voiceTypingResumeAttemptedRef.current = currentUserId;
-                        startDictation();
-                      }
-                    }}
+                    onClick={openVoiceTyping}
                     className={`premium-tool-button premium-toggle-button ${voiceTypingEnabled ? "premium-tool-button-active" : ""}`}
                     title={
-                      voiceTypingEnabled && !dictating
-                        ? "Voice typing is on but not listening. Click to turn it off."
-                        : supported
-                          ? "Dictate into your passage"
-                          : "Use Chrome or Edge for voice typing"
+                      supported
+                        ? "Open the separate voice typing page"
+                        : "Use Chrome or Edge for voice typing"
                     }
                   >
-                    {dictating ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+                    <Mic className="h-5 w-5" />
                     <span>
                       <strong>Voice typing</strong>
                       <small>
-                        {dictating
-                          ? "On. Speak to add text"
-                          : voiceTypingEnabled
-                            ? "On. Microphone is not listening"
-                            : supported
-                              ? "Off. Dictate into your passage"
-                              : "Use Chrome or Edge to dictate"}
+                        {voiceTypingEnabled
+                          ? "On. Open separate dictation page"
+                          : "Open a blank dictation page"}
                       </small>
                     </span>
-                    <span className="premium-toggle-state">
-                      {voiceTypingEnabled ? "ON" : "OFF"}
-                    </span>
+                    <span className="premium-toggle-state">OPEN</span>
                   </button>
                 ) : (
                   <button
@@ -1046,6 +889,7 @@ function PracticePage() {
       {phase !== "input" && (
         <section
           className={`reading-stage ${controlsVisible ? "" : "reading-stage-immersive"}`}
+          style={presentationStyle}
           onClick={(event) => {
             if ((event.target as HTMLElement).closest("button")) return;
             setControlsVisible((visible) => !visible);
@@ -1226,19 +1070,7 @@ function PracticePage() {
           )}
           {controlsVisible && (
             <footer className="reading-hint">
-              {listening ? (
-                <>
-                  <Mic className="h-4 w-4" /> Reading aloud
-                </>
-              ) : (
-                <>
-                  <Play className="h-4 w-4" /> Tap text or press Space to advance
-                </>
-              )}
-              <span>
-                {oneSentenceAtATime ? "One sentence at a time. " : ""}
-                Tap anywhere to hide controls. Space and arrows move by word. Esc shows controls.
-              </span>
+              <span>Tap anywhere to hide controls.</span>
             </footer>
           )}
         </section>

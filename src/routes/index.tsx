@@ -2,6 +2,7 @@
 import { CheckCircle2, Mic, ShieldCheck, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { SiteNavbar } from "../components/site-navbar";
 import { supabase } from "../lib/supabase";
 
 export const Route = createFileRoute("/")({
@@ -56,21 +57,14 @@ function LandingPage() {
 
   return (
     <main className="landing-page">
-      <header className="landing-header">
-        <Link to="/" className="landing-brand">
-          <span className="brand-mark-frame">
-            <img src="/orator-mark.svg" alt="" className="brand-mark-image" />
-          </span>
-          <span>Orator</span>
-        </Link>
-
-        <nav className="landing-nav" aria-label="Main navigation">
-          <Link to="/sign-in">Sign in</Link>
+      <SiteNavbar brandText="Rator" brandTo="/" showMenu={false}>
+        <nav className="landing-nav" aria-label="Account actions">
+          <Link to="/sign-in">Sign In</Link>
           <Link to="/sign-up" className="landing-nav-cta">
-            Create account
+            Sign Up
           </Link>
         </nav>
-      </header>
+      </SiteNavbar>
 
       <section className="landing-hero">
         <div className="landing-hero-copy">
@@ -82,7 +76,7 @@ function LandingPage() {
           </p>
 
           <p className="landing-start-note">
-            <CheckCircle2 className="h-4 w-4" /> Free microphone practice, ready when you are
+            <CheckCircle2 className="h-4 w-4" /> Free mic practice, anytime
           </p>
 
           <ul className="landing-proof-list">
