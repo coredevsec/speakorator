@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
-import { Eye, EyeOff, LoaderCircle, Mic } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, LoaderCircle } from "lucide-react";
 
 import { supabase } from "../lib/supabase";
 
@@ -271,9 +271,9 @@ export function AuthPage({ mode }: AuthPageProps) {
 
       <section className="auth-content">
         <div className="auth-heading">
-          <span className="auth-icon">
-            <Mic className="h-5 w-5" />
-          </span>
+          <Link to="/" className="auth-icon" aria-label="Back to landing page">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
           <p className="practice-kicker">SPEAKING PRACTICE</p>
           <h1>{isSignUp ? "Create your account" : "Welcome back"}</h1>
           <p>
