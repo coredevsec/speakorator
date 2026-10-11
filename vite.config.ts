@@ -15,7 +15,7 @@ export default defineConfig(({ command, mode }) => {
       tailwindcss(),
       tsconfigPaths({ projects: ["./tsconfig.json"] }),
       tanstackStart({ server: { entry: "server" } }),
-      ...(command === "build" ? [nitro({ defaultPreset: "cloudflare-module" })] : []),
+      ...(command === "build" ? [nitro({ preset: "vercel" })] : []),
       react(),
     ],
   };
