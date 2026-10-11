@@ -49,6 +49,10 @@ function BillingPage() {
   const [checking, setChecking] = useState(true);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState("");
+  const [activeSubscription, setActiveSubscription] = useState<{
+    plan_key: string;
+    status: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!supabase) {
@@ -56,12 +60,28 @@ function BillingPage() {
       return;
     }
     let active = true;
-    void supabase.auth.getSession().then(({ data }) => {
+    void supabase.auth.getSession().then(async ({ data }) => {
       if (!active) return;
-      if (!data.session) void navigate({ to: "/sign-in", replace: true });
-      else {
-        setChecking(false);
+      if (!data.session) {
+        void navigate({ to: "/sign-in", replace: true });
+        return;
       }
+
+      const { data: subscriptionData, error } = await supabase
+        .from("subscriptions")
+        .select("plan_key, status")
+        .eq("user_id", data.session.user.id)
+        .in("status", ["active", "trialing"])
+        .maybeSingle();
+
+      if (!active) return;
+      if (!error && subscriptionData) {
+        setActiveSubscription({
+          plan_key: typeof subscriptionData.plan_key === "string" ? subscriptionData.plan_key : "monthly",
+          status: typeof subscriptionData.status === "string" ? subscriptionData.status : "active",
+        });
+      }
+      setChecking(false);
     });
     return () => {
       active = false;
@@ -203,37 +223,74 @@ function BillingPage() {
         </section>
 
         <section className="membership-plans-section" aria-labelledby="membership-plans-title">
-          <div className="membership-section-heading membership-plans-heading">
-            <div>
-              <p className="practice-kicker">SIMPLE RECURRING PLANS</p>
-              <h2 id="membership-plans-title">Choose your rhythm</h2>
+          {activeSubscription ? (
+            <div className="membership-section-heading membership-plans-heading">
+              <div>
+                <p className="practice-kicker">CURRENT MEMBERSHIP</p>
+                <h2 id="membership-plans-title">Premium is active</h2>
+              </div>
+              <p>Your {activeSubscription.plan_key} plan is currently active.</p>
             </div>
-            <p>Payment is processed securely by Flutterwave at the interval shown.</p>
-          </div>
+          ) : (
+            <div className="membership-section-heading membership-plans-heading">
+              <div>
+                <p className="practice-kicker">SIMPLE RECURRING PLANS</p>
+                <h2 id="membership-plans-title">Choose your rhythm</h2>
+              </div>
+              <p>Payment is processed securely by Flutterwave at the interval shown.</p>
+            </div>
+          )}
           {checkoutError && (
             <p className="auth-error" role="alert">
               {checkoutError}
             </p>
           )}
-          <div className="billing-plans">
-            {PLANS.map((plan) => (
-              <PlanCard
-                key={plan.key}
-                title={plan.title}
-                price={plan.price}
-                cadence={plan.cadence}
-                description={plan.description}
-                featured={"featured" in plan && plan.featured}
-                loading={loadingPlan === plan.key}
-                disabled={loadingPlan !== null}
-                onCheckout={() => void beginCheckout(plan.key)}
-              />
-            ))}
-          </div>
-          <p className="membership-cancellation-note">
-            Subscriptions renew at the selected interval. For cancellation or billing support,
-            contact Orator support.
-          </p>
+          {activeSubscription ? (
+            <div className="billing-active-status">
+              <div className="billing-plan billing-plan-featured">
+                <div className="billing-plan-heading">
+                  <h3>{activeSubscription.plan_key[0].toUpperCase() + activeSubscription.plan_key.slice(1)}</h3>
+                  <Sparkles className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <p className="billing-price">
+                  {PLANS.find((plan) => plan.key === activeSubscription.plan_key)?.price ?? "$0.00"}
+                  <span>{PLANS.find((plan) => plan.key === activeSubscription.plan_key)?.cadence ?? "active"}</span>
+                </p>
+                <p className="billing-plan-description">
+                  Premium is active for your account. You can continue practicing with your unlocked tools.
+                </p>
+                <p className="billing-plan-includes">
+                  <Check className="h-4 w-4" /> Status: {activeSubscription.status}
+                </p>
+                <Link to="/practice" className="billing-action" type="button">
+                  Continue to practice
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="billing-plans">
+                {PLANS.map((plan) => (
+                  <PlanCard
+                    key={plan.key}
+                    title={plan.title}
+                    price={plan.price}
+                    cadence={plan.cadence}
+                    description={plan.description}
+                    featured={"featured" in plan && plan.featured}
+                    loading={loadingPlan === plan.key}
+                    disabled={loadingPlan !== null}
+                    onCheckout={() => void beginCheckout(plan.key)}
+                  />
+                ))}
+              </div>
+              <p className="membership-cancellation-note">
+                Subscriptions renew at the selected interval. For cancellation or billing support,
+                contact Orator support.
+              </p>
+            </>
+          )}
         </section>
       </section>
     </main>
