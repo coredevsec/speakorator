@@ -1,10 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+import { supabase } from "../lib/supabase";
 
 export function SiteNavbar({
-  brandText = "Orator",
+  brandText = "Rator",
   brandTo = "/",
   showMenu = true,
   children,
@@ -15,6 +17,35 @@ export function SiteNavbar({
   children?: ReactNode;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!supabase) return;
+    let active = true;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (active) setSignedIn(Boolean(data.session));
+    });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSignedIn(Boolean(session));
+      if (!session) setMenuOpen(false);
+    });
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOnOutsidePointer);
+    return () => document.removeEventListener("pointerdown", closeOnOutsidePointer);
+  }, [menuOpen]);
 
   return (
     <header className="site-navbar">
@@ -27,7 +58,7 @@ export function SiteNavbar({
       <div className="site-navbar-actions">
         {children}
         {showMenu && (
-          <div className="account-menu-wrap">
+          <div className="account-menu-wrap" ref={menuRef}>
             <button
               type="button"
               className="account-menu-trigger"
@@ -54,12 +85,16 @@ export function SiteNavbar({
                 <Link to="/billing" onClick={() => setMenuOpen(false)}>
                   Membership
                 </Link>
-                <Link to="/sign-in" onClick={() => setMenuOpen(false)}>
-                  Sign in
-                </Link>
-                <Link to="/sign-up" onClick={() => setMenuOpen(false)}>
-                  Sign up
-                </Link>
+                {!signedIn && (
+                  <>
+                    <Link to="/sign-in" onClick={() => setMenuOpen(false)}>
+                      Sign in
+                    </Link>
+                    <Link to="/sign-up" onClick={() => setMenuOpen(false)}>
+                      Sign up
+                    </Link>
+                  </>
+                )}
               </nav>
             )}
           </div>

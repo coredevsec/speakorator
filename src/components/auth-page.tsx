@@ -260,7 +260,7 @@ export function AuthPage({ mode }: AuthPageProps) {
 
   return (
     <main className="auth-page">
-      <SiteNavbar />
+      <SiteNavbar showMenu={false} />
 
       <section className="auth-content">
         <div className="auth-heading">

@@ -65,14 +65,13 @@ function VoiceTypingPage() {
   const [checking, setChecking] = useState(true);
   const [supported, setSupported] = useState(false);
   const [listening, setListening] = useState(false);
-  const [shouldResume, setShouldResume] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [interimTranscript, setInterimTranscript] = useState("");
   const [error, setError] = useState("");
   const recognitionRef = useRef<Recognition | null>(null);
   const wantsListeningRef = useRef(false);
   const restartTimerRef = useRef<number | null>(null);
-  const autoStartedRef = useRef(false);
+  const startListeningRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     setSupported(getRecognitionConstructor() !== null);
@@ -98,14 +97,6 @@ function VoiceTypingPage() {
         return;
       }
       setUserId(user.id);
-      try {
-        const preferences = JSON.parse(
-          window.localStorage.getItem(`${PRACTICE_TOOLS_KEY}${user.id}`) ?? "{}",
-        ) as { voiceTypingEnabled?: boolean };
-        setShouldResume(preferences.voiceTypingEnabled === true);
-      } catch {
-        setShouldResume(false);
-      }
       setChecking(false);
     });
     return () => {
@@ -128,7 +119,6 @@ function VoiceTypingPage() {
       recognitionRef.current = null;
       setListening(false);
       setInterimTranscript("");
-      setShouldResume(false);
       if (savePreference && userId) saveVoiceTypingPreference(userId, false);
     },
     [userId],
@@ -143,8 +133,8 @@ function VoiceTypingPage() {
     setError("");
     wantsListeningRef.current = true;
     const recognition = new RecognitionConstructor();
-    recognition.lang = "en-US";
-    recognition.continuous = true;
+    recognition.lang = typeof navigator !== "undefined" ? navigator.language || "en-US" : "en-US";
+    recognition.continuous = false;
     recognition.interimResults = true;
     recognition.onresult = (event) => {
       let preview = "";
@@ -163,11 +153,22 @@ function VoiceTypingPage() {
       setInterimTranscript(preview.trim());
     };
     recognition.onerror = (event) => {
-      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+      if (event.error === "aborted") {
+        if (recognitionRef.current === recognition && wantsListeningRef.current) {
+          wantsListeningRef.current = false;
+          setListening(false);
+          setInterimTranscript("");
+        }
+      } else if (event.error === "not-allowed" || event.error === "service-not-allowed") {
         setError("Microphone access was denied. Allow microphone access in your browser settings.");
         stopListening();
       } else if (event.error === "audio-capture") {
         setError("No microphone is available. Connect or enable one, then try again.");
+        stopListening();
+      } else if (event.error === "network") {
+        setError(
+          "Speech recognition could not reach the browser's speech service. Check your connection and try again.",
+        );
         stopListening();
       } else if (event.error !== "no-speech" && event.error) {
         setError(`Voice typing error: ${event.error}. Please try again.`);
@@ -182,19 +183,14 @@ function VoiceTypingPage() {
       restartTimerRef.current = window.setTimeout(() => {
         restartTimerRef.current = null;
         if (!wantsListeningRef.current || recognitionRef.current !== recognition) return;
-        try {
-          recognition.start();
-        } catch {
-          setListening(false);
-          wantsListeningRef.current = false;
-        }
-      }, 350);
+        recognitionRef.current = null;
+        startListeningRef.current();
+      }, 200);
     };
     recognitionRef.current = recognition;
     try {
       recognition.start();
       setListening(true);
-      setShouldResume(true);
       if (userId) saveVoiceTypingPreference(userId, true);
     } catch {
       wantsListeningRef.current = false;
@@ -204,10 +200,8 @@ function VoiceTypingPage() {
   }, [stopListening, userId]);
 
   useEffect(() => {
-    if (!shouldResume || !supported || !userId || autoStartedRef.current) return;
-    autoStartedRef.current = true;
-    startListening();
-  }, [shouldResume, startListening, supported, userId]);
+    startListeningRef.current = startListening;
+  }, [startListening]);
 
   useEffect(
     () => () => {

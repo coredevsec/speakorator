@@ -86,6 +86,27 @@
 .reader-focus .reading-stage {
   background-color: var(--background);
 }
+.reading-stage {
+  display: flex;
+  flex-direction: column;
+}
+.reading-passage {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  width: min(100%, 64rem);
+  margin-inline: auto;
+}
+.reading-passage > p {
+  width: 100%;
+  text-align: center;
+}
+.account-page-content,
+.auth-content,
+.practice-page,
+.voice-typing-page {
+  margin-inline: auto;
+}
 .practice-page .practice-intro h1 {
   font-size: 2.15rem;
 }
