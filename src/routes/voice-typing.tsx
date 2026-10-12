@@ -24,6 +24,10 @@ function normalizeSpeechToken(token: string): string {
   return token.toLowerCase().replace(/[^\p{L}\p{N}']/gu, "");
 }
 
+function normalizedPhrase(text: string): string {
+  return speechTokens(text).map(normalizeSpeechToken).filter(Boolean).join(" ");
+}
+
 type RecognitionResult = {
   isFinal: boolean;
   0: { transcript: string };
@@ -89,9 +93,9 @@ function VoiceTypingPage() {
   const wantsListeningRef = useRef(false);
   const userIdRef = useRef("");
   const restartTimerRef = useRef<number | null>(null);
-  const startListeningRef = useRef<() => void>(() => {});
+  const transcriptRef = useRef("");
   const sessionIdRef = useRef(0);
-  const lastFinalRef = useRef<{ tokens: string[]; sessionId: number; time: number } | null>(null);
+  const lastFinalRef = useRef<{ phrase: string; sessionId: number; time: number } | null>(null);
 
   useEffect(() => {
     setSupported(getRecognitionConstructor() !== null);
@@ -154,7 +158,7 @@ function VoiceTypingPage() {
     setError("");
     wantsListeningRef.current = true;
     const recognition = new RecognitionConstructor();
-    const sessionId = ++sessionIdRef.current;
+    let sessionId = ++sessionIdRef.current;
     const handledFinalResults = new Set<number>();
     recognition.lang = typeof navigator !== "undefined" ? navigator.language || "en-US" : "en-US";
     recognition.continuous = true;
@@ -171,13 +175,16 @@ function VoiceTypingPage() {
           handledFinalResults.add(index);
           const tokens = speechTokens(spokenText);
           const previous = lastFinalRef.current;
-          const crossesSession =
-            previous && previous.sessionId !== sessionId && Date.now() - previous.time < 3000;
+          const phrase = normalizedPhrase(spokenText);
+          const now = Date.now();
+          const repeatedFinal = previous?.phrase === phrase && now - previous.time < 2500;
+          const crossesSession = previous && previous.sessionId !== sessionId;
           let overlap = 0;
-          if (crossesSession && previous) {
-            const maxOverlap = Math.min(8, previous.tokens.length, tokens.length);
+          if (!repeatedFinal && crossesSession) {
+            const committedTokens = speechTokens(transcriptRef.current);
+            const maxOverlap = Math.min(12, committedTokens.length, tokens.length);
             for (let size = maxOverlap; size > 0; size -= 1) {
-              const oldSuffix = previous.tokens.slice(-size).map(normalizeSpeechToken);
+              const oldSuffix = committedTokens.slice(-size).map(normalizeSpeechToken);
               const newPrefix = tokens.slice(0, size).map(normalizeSpeechToken);
               if (oldSuffix.every((token, tokenIndex) => token === newPrefix[tokenIndex])) {
                 overlap = size;
@@ -185,14 +192,13 @@ function VoiceTypingPage() {
               }
             }
           }
-          const newTokens = tokens.slice(overlap);
+          const newTokens = repeatedFinal ? [] : tokens.slice(overlap);
           if (newTokens.length > 0) {
             const cleanText = newTokens.join(" ");
-            setTranscript(
-              (current) => `${current.trimEnd()}${current.trim() ? " " : ""}${cleanText}`,
-            );
+            transcriptRef.current = `${transcriptRef.current.trimEnd()}${transcriptRef.current.trim() ? " " : ""}${cleanText}`;
+            setTranscript(transcriptRef.current);
           }
-          lastFinalRef.current = { tokens, sessionId, time: Date.now() };
+          lastFinalRef.current = { phrase, sessionId, time: now };
         } else if (!result.isFinal) {
           preview += result[0].transcript;
         }
@@ -223,9 +229,17 @@ function VoiceTypingPage() {
         restartTimerRef.current = window.setTimeout(() => {
           restartTimerRef.current = null;
           if (!wantsListeningRef.current || recognitionRef.current !== recognition) return;
-          recognitionRef.current = null;
-          startListeningRef.current();
-        }, 300);
+          handledFinalResults.clear();
+          sessionId = ++sessionIdRef.current;
+          try {
+            recognition.start();
+          } catch {
+            wantsListeningRef.current = false;
+            recognitionRef.current = null;
+            setListening(false);
+            setError("The browser ended microphone capture. Tap Start dictation to resume.");
+          }
+        }, 500);
         return;
       }
       if (recognitionRef.current === recognition) recognitionRef.current = null;
@@ -246,10 +260,6 @@ function VoiceTypingPage() {
       setError("Could not start voice typing. Please try again.");
     }
   }, [stopListening, userId]);
-
-  useEffect(() => {
-    startListeningRef.current = startListening;
-  }, [startListening]);
 
   useEffect(
     () => () => {
@@ -317,7 +327,10 @@ function VoiceTypingPage() {
           id="voice-transcript"
           className="voice-typing-editor"
           value={transcript}
-          onChange={(event) => setTranscript(event.target.value)}
+          onChange={(event) => {
+            transcriptRef.current = event.target.value;
+            setTranscript(event.target.value);
+          }}
           placeholder=""
         />
         {interimTranscript && (

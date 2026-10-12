@@ -188,7 +188,6 @@ function PracticePage() {
   const wantListeningRef = useRef(false);
   const activeWordRef = useRef<HTMLSpanElement | null>(null);
   const recognitionRestartRef = useRef<number | null>(null);
-  const startRecognitionRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     if (!supabase) {
@@ -428,9 +427,16 @@ function PracticePage() {
         recognitionRestartRef.current = window.setTimeout(() => {
           recognitionRestartRef.current = null;
           if (!wantListeningRef.current || recogRef.current !== rec) return;
-          recogRef.current = null;
-          startRecognitionRef.current();
-        }, 300);
+          handledFinalResults.clear();
+          try {
+            rec.start();
+          } catch {
+            wantListeningRef.current = false;
+            recogRef.current = null;
+            setListening(false);
+            setMicError("The browser ended microphone capture. Restart the passage to try again.");
+          }
+        }, 500);
         return;
       }
       if (recogRef.current === rec) recogRef.current = null;
@@ -448,10 +454,6 @@ function PracticePage() {
       setMicError("Could not start the microphone. Please try again.");
     }
   }, [advanceWithTranscript]);
-
-  useEffect(() => {
-    startRecognitionRef.current = startRecognition;
-  }, [startRecognition]);
 
   useEffect(() => () => stopRecognition(), [stopRecognition]);
 
@@ -509,7 +511,6 @@ function PracticePage() {
       if (e.key === " " || e.key === "ArrowRight") {
         if (e.repeat) return;
         e.preventDefault();
-        if (listening) stopRecognition();
         advanceManually();
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
@@ -524,7 +525,7 @@ function PracticePage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, listening, advanceManually, stepBackward, stopRecognition]);
+  }, [phase, advanceManually, stepBackward]);
 
   const restartSameText = () => {
     stopRecognition();
