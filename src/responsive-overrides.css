@@ -26,6 +26,22 @@
   align-items: center;
   gap: 0.65rem;
 }
+.site-navbar-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: #dce8f5;
+  border: 1px solid #40566b;
+  border-radius: 0.5rem;
+  background: #102139;
+  cursor: pointer;
+}
+.site-navbar-back:hover {
+  color: #8de4d4;
+  background: #18314b;
+}
 .site-navbar .account-menu {
   position: absolute;
   top: calc(100% + 0.5rem);

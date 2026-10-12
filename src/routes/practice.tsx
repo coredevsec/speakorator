@@ -5,8 +5,6 @@ import {
   BookMarked,
   CreditCard,
   Mic,
-  Pause,
-  Play,
   RotateCcw,
   Gauge,
   CheckCircle2,
@@ -150,7 +148,6 @@ function PracticePage() {
   const [spokenCount, setSpokenCount] = useState(0);
   const [fillerCount, setFillerCount] = useState(0);
   const [listening, setListening] = useState(false);
-  const [paused, setPaused] = useState(false);
   const [interim, setInterim] = useState("");
   const [micError, setMicError] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -188,14 +185,13 @@ function PracticePage() {
   const recogRef = useRef<SpeechRecognitionLike | null>(null);
   const cursorRef = useRef(0);
   const startTimeRef = useRef<number | null>(null);
-  const elapsedBaseRef = useRef(0);
-  const hasStartedTimingRef = useRef(false);
   const wantListeningRef = useRef(false);
   const activeWordRef = useRef<HTMLSpanElement | null>(null);
   const recognitionRestartRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!supabase) {
+    const client = supabase;
+    if (!client) {
       void navigate({ to: "/sign-in", replace: true });
       return;
     }
@@ -209,7 +205,7 @@ function PracticePage() {
       setMembershipError(access.error ?? "");
     };
     const loadSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
+      const { data, error } = await client.auth.getSession();
       if (!active) return;
       if (error) {
         setSessionState("checking");
@@ -223,7 +219,7 @@ function PracticePage() {
     void loadSession();
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = client.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setSessionState("authenticated");
         void refreshMembership(session.user.id);
@@ -273,7 +269,8 @@ function PracticePage() {
   }, [currentUserId, oneSentenceAtATime, savePassageOnStart, settingsUserId, voiceTypingEnabled]);
 
   useEffect(() => {
-    if (!supabase || !currentUserId) return;
+    const client = supabase;
+    if (!client || !currentUserId) return;
     let active = true;
     const refreshMembership = async () => {
       const access = await checkSubscriptionAccess(currentUserId);
@@ -281,7 +278,7 @@ function PracticePage() {
       setHasPaidAccess(!access.error && access.allowed);
       setMembershipError(access.error ?? "");
     };
-    const channel = supabase
+    const channel = client
       .channel(`subscription-status:${currentUserId}`)
       .on(
         "postgres_changes",
@@ -303,7 +300,7 @@ function PracticePage() {
       active = false;
       window.removeEventListener("focus", refreshWhenVisible);
       document.removeEventListener("visibilitychange", refreshWhenVisible);
-      void supabase.removeChannel(channel);
+      void client.removeChannel(channel);
     };
   }, [currentUserId]);
 
@@ -320,14 +317,12 @@ function PracticePage() {
   }, []);
 
   useEffect(() => {
-    if (phase !== "reading" || paused) return;
+    if (phase !== "reading") return;
     const id = setInterval(() => {
-      if (startTimeRef.current) {
-        setElapsed(elapsedBaseRef.current + (Date.now() - startTimeRef.current) / 1000);
-      }
+      if (startTimeRef.current) setElapsed((Date.now() - startTimeRef.current) / 1000);
     }, 500);
     return () => clearInterval(id);
-  }, [paused, phase]);
+  }, [phase]);
 
   useEffect(() => {
     activeWordRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
@@ -354,14 +349,13 @@ function PracticePage() {
       if (heard.length === 0) return;
       let cursor = cursorRef.current;
       for (const h of heard) {
-        const target = normalized[cursor];
-        if (target && (target === h || target.startsWith(h) || h.startsWith(target))) cursor += 1;
+        const matchedOffset = normalized
+          .slice(cursor, Math.min(cursor + 5, normalized.length))
+          .findIndex((target) => target === h || target.startsWith(h) || h.startsWith(target));
+        if (matchedOffset >= 0) cursor += matchedOffset + 1;
       }
       if (cursor !== cursorRef.current) {
-        if (!startTimeRef.current) {
-          startTimeRef.current = Date.now();
-          hasStartedTimingRef.current = true;
-        }
+        if (!startTimeRef.current) startTimeRef.current = Date.now();
         cursorRef.current = cursor;
         setCurrentIdx(cursor);
         setSpokenCount(cursor);
@@ -476,10 +470,7 @@ function PracticePage() {
     setSpokenCount(0);
     setFillerCount(0);
     setElapsed(0);
-    elapsedBaseRef.current = 0;
-    hasStartedTimingRef.current = false;
     startTimeRef.current = null;
-    setPaused(false);
     setText(content);
     setControlsVisible(false);
     setPhase("reading");
@@ -488,7 +479,6 @@ function PracticePage() {
 
   const reset = () => {
     stopRecognition();
-    setPaused(false);
     setPhase("input");
     setText("");
     setSelectedSample("");
@@ -500,10 +490,7 @@ function PracticePage() {
 
   const advanceManually = useCallback(() => {
     if (phase !== "reading") return;
-    if (!startTimeRef.current) {
-      startTimeRef.current = Date.now();
-      hasStartedTimingRef.current = true;
-    }
+    if (!startTimeRef.current) startTimeRef.current = Date.now();
     const next = Math.min(cursorRef.current + 1, normalized.length);
     cursorRef.current = next;
     setCurrentIdx(next);
@@ -521,23 +508,6 @@ function PracticePage() {
     setCurrentIdx(previous);
     setSpokenCount(previous);
   }, [phase]);
-
-  const togglePause = () => {
-    if (paused) {
-      setPaused(false);
-      if (hasStartedTimingRef.current) startTimeRef.current = Date.now();
-      startRecognition();
-      return;
-    }
-    stopRecognition();
-    if (startTimeRef.current) {
-      elapsedBaseRef.current += (Date.now() - startTimeRef.current) / 1000;
-      startTimeRef.current = null;
-      setElapsed(elapsedBaseRef.current);
-    }
-    setInterim("");
-    setPaused(true);
-  };
 
   useEffect(() => {
     if (phase !== "reading") return;
@@ -568,10 +538,7 @@ function PracticePage() {
     setSpokenCount(0);
     setFillerCount(0);
     setElapsed(0);
-    elapsedBaseRef.current = 0;
-    hasStartedTimingRef.current = false;
     startTimeRef.current = null;
-    setPaused(false);
     setInterim("");
     setControlsVisible(false);
     setPhase("reading");
@@ -663,34 +630,6 @@ function PracticePage() {
 
       {phase === "input" && (
         <section className="practice-page mx-auto max-w-5xl px-6 py-12">
-          {phase === "done" && (
-            <div className="mb-8 border-b border-border pb-8" role="status">
-              <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-                Session complete
-              </p>
-              <h1 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold">
-                Beautifully read.
-              </h1>
-              <p className="mt-2 text-muted-foreground">
-                You read {words.length} words in {Math.round(elapsed)} seconds
-                {wpm > 0 ? ` at about ${wpm} words per minute.` : "."}
-              </p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <button
-                  onClick={restartSameText}
-                  className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
-                >
-                  <RotateCcw className="h-4 w-4" /> Read it again
-                </button>
-                <button
-                  onClick={reset}
-                  className="rounded-md border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-accent"
-                >
-                  Clear passage
-                </button>
-              </div>
-            </div>
-          )}
           <div className="practice-intro">
             <p className="practice-kicker">SPEAKING PRACTICE</p>
             <h1>
@@ -972,22 +911,12 @@ function PracticePage() {
                 <div className="reading-tools">
                   {phase === "reading" ? (
                     <span className="reader-listening-state" role="status">
-                      {paused ? "Paused" : listening ? "Listening" : "Reconnecting microphone"}
+                      {listening ? "Listening" : "Waiting for speech"}
                     </span>
                   ) : (
                     <span className="reader-complete">
                       <CheckCircle2 className="h-5 w-5" /> Passage complete
                     </span>
-                  )}
-                  {phase === "reading" && (
-                    <button
-                      onClick={togglePause}
-                      className="reader-control"
-                      aria-label={paused ? "Resume reading" : "Pause reading"}
-                      title={paused ? "Resume reading" : "Pause reading"}
-                    >
-                      {paused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
-                    </button>
                   )}
                   <button
                     onClick={stepBackward}

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BookMarked, CreditCard, LogOut, Menu, Mic, Settings, X } from "lucide-react";
+import { ArrowLeft, BookMarked, CreditCard, LogOut, Menu, Mic, Settings, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 
@@ -64,6 +64,18 @@ export function SiteNavbar({
       </Link>
       <div className="site-navbar-actions">
         {children}
+        <button
+          type="button"
+          className="site-navbar-back"
+          aria-label="Go back"
+          title="Go back"
+          onClick={() => {
+            if (window.history.length > 1) window.history.back();
+            else void navigate({ to: brandTo });
+          }}
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
         {showMenu && (
           <div className="account-menu-wrap" ref={menuRef}>
             <button

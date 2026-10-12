@@ -52,8 +52,9 @@ type Recognition = {
 function getRecognitionConstructor(): (new () => Recognition) | null {
   if (typeof window === "undefined") return null;
   const browserWindow = window as unknown as Record<string, unknown>;
-  return (browserWindow.SpeechRecognition ?? browserWindow.webkitSpeechRecognition ?? null) as
-    (new () => Recognition) | null;
+  return (browserWindow["SpeechRecognition"] ??
+    browserWindow["webkitSpeechRecognition"] ??
+    null) as (new () => Recognition) | null;
 }
 
 function saveVoiceTypingPreference(userId: string, enabled: boolean) {
