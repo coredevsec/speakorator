@@ -92,6 +92,14 @@
   grid-column: 1;
   margin: 0;
 }
+.account-settings-heading .settings-back-button {
+  padding: 0;
+  cursor: pointer;
+}
+.account-settings-heading .settings-back-button:hover {
+  color: #f3f7fc;
+  background: #18314b;
+}
 .account-settings-heading .practice-kicker,
 .account-settings-heading h1,
 .account-settings-heading .account-page-intro {

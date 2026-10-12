@@ -166,7 +166,7 @@ export function AuthPage({ mode }: AuthPageProps) {
   const hasPhone = phone.trim().length > 0;
   const hasEmail = email.trim().length > 0;
   const hasPassword = password.length >= 8;
-  const showSurname = isSignUp && hasName;
+  const showSurname = isSignUp;
   const showCountry = isSignUp && hasName && hasSurname;
   const showRegion = isSignUp && hasName && hasSurname && hasCountry;
   const showOccupation = isSignUp && hasName && hasSurname && hasCountry && hasRegion;

@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Check, CreditCard, LoaderCircle, Palette, RotateCcw, Save, Settings2 } from "lucide-react";
+import { ArrowLeft, Check, CreditCard, LoaderCircle, Palette, RotateCcw, Save } from "lucide-react";
 import type { CSSProperties, FormEvent } from "react";
 import { useEffect, useState } from "react";
 
@@ -194,9 +194,18 @@ function SettingsPage() {
       <SiteNavbar brandTo="/practice" />
       <section className="account-page-content account-settings-content">
         <header className="account-settings-heading">
-          <span className="account-page-icon">
-            <Settings2 className="h-5 w-5" />
-          </span>
+          <button
+            type="button"
+            className="account-page-icon settings-back-button"
+            aria-label="Go back to the previous page"
+            title="Go back"
+            onClick={() => {
+              if (window.history.length > 1) window.history.back();
+              else void navigate({ to: "/practice" });
+            }}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
           <p className="practice-kicker">ACCOUNT</p>
           <h1>Settings</h1>
           <p className="account-page-intro">Manage your Orator account.</p>
