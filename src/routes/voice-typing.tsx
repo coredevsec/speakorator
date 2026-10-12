@@ -80,6 +80,8 @@ function VoiceTypingPage() {
   const recognitionRef = useRef<Recognition | null>(null);
   const wantsListeningRef = useRef(false);
   const userIdRef = useRef("");
+  const restartTimerRef = useRef<number | null>(null);
+  const startListeningRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     setSupported(getRecognitionConstructor() !== null);
@@ -116,6 +118,10 @@ function VoiceTypingPage() {
   const stopListening = useCallback(
     (savePreference = true) => {
       wantsListeningRef.current = false;
+      if (restartTimerRef.current !== null) {
+        window.clearTimeout(restartTimerRef.current);
+        restartTimerRef.current = null;
+      }
       try {
         recognitionRef.current?.stop();
       } catch {
@@ -142,6 +148,7 @@ function VoiceTypingPage() {
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.onresult = (event) => {
+      if (recognitionRef.current !== recognition) return;
       let preview = "";
       for (let index = event.resultIndex; index < event.results.length; index += 1) {
         const result = event.results[index];
@@ -159,11 +166,7 @@ function VoiceTypingPage() {
     };
     recognition.onerror = (event) => {
       if (event.error === "aborted") {
-        if (recognitionRef.current === recognition && wantsListeningRef.current) {
-          wantsListeningRef.current = false;
-          setListening(false);
-          setInterimTranscript("");
-        }
+        // Some browsers abort a session while rotating audio devices; onend resumes it.
       } else if (event.error === "not-allowed" || event.error === "service-not-allowed") {
         setError("Microphone access was denied. Allow microphone access in your browser settings.");
         stopListening();
@@ -181,10 +184,20 @@ function VoiceTypingPage() {
       }
     };
     recognition.onend = () => {
-      wantsListeningRef.current = false;
-      recognitionRef.current = null;
-      setListening(false);
-      setInterimTranscript("");
+      if (wantsListeningRef.current && recognitionRef.current === recognition) {
+        restartTimerRef.current = window.setTimeout(() => {
+          restartTimerRef.current = null;
+          if (!wantsListeningRef.current || recognitionRef.current !== recognition) return;
+          recognitionRef.current = null;
+          startListeningRef.current();
+        }, 300);
+        return;
+      }
+      if (recognitionRef.current === recognition) recognitionRef.current = null;
+      if (!wantsListeningRef.current) {
+        setListening(false);
+        setInterimTranscript("");
+      }
     };
     recognitionRef.current = recognition;
     try {
@@ -193,14 +206,20 @@ function VoiceTypingPage() {
       if (userId) saveVoiceTypingPreference(userId, true);
     } catch {
       wantsListeningRef.current = false;
+      recognitionRef.current = null;
       setListening(false);
       setError("Could not start voice typing. Please try again.");
     }
   }, [stopListening, userId]);
 
+  useEffect(() => {
+    startListeningRef.current = startListening;
+  }, [startListening]);
+
   useEffect(
     () => () => {
       wantsListeningRef.current = false;
+      if (restartTimerRef.current !== null) window.clearTimeout(restartTimerRef.current);
       try {
         recognitionRef.current?.stop();
       } catch {

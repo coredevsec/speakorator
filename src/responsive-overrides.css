@@ -207,6 +207,30 @@
 .auth-form input:focus::placeholder {
   opacity: 0;
 }
+.auth-field-step {
+  animation: auth-field-enter 0.22s ease-out both;
+}
+.auth-field-skip {
+  justify-self: start;
+  padding: 0.2rem 0;
+  border: 0;
+  background: transparent;
+  color: #9db1c8;
+  font-size: 0.78rem;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  cursor: pointer;
+}
+@keyframes auth-field-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .voice-typing-status {
   min-height: 1.5rem;
   margin-top: 0.75rem;

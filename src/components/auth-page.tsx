@@ -144,6 +144,7 @@ export function AuthPage({ mode }: AuthPageProps) {
   const [stateRegion, setStateRegion] = useState("");
   const [occupation, setOccupation] = useState("");
   const [otherOccupation, setOtherOccupation] = useState("");
+  const [occupationSkipped, setOccupationSkipped] = useState(false);
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -155,6 +156,24 @@ export function AuthPage({ mode }: AuthPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
+  const hasName = firstName.trim().length > 0;
+  const hasSurname = surname.trim().length > 0;
+  const hasCountry = country.length > 0 && (country !== "Other" || otherCountry.trim().length > 0);
+  const hasRegion = stateRegion.trim().length > 0;
+  const hasOccupation =
+    occupationSkipped ||
+    (occupation.length > 0 && (occupation !== "Other" || otherOccupation.trim().length > 0));
+  const hasPhone = phone.trim().length > 0;
+  const hasEmail = email.trim().length > 0;
+  const hasPassword = password.length >= 8;
+  const showSurname = isSignUp && hasName;
+  const showCountry = isSignUp && hasName && hasSurname;
+  const showRegion = isSignUp && hasName && hasSurname && hasCountry;
+  const showOccupation = isSignUp && hasName && hasSurname && hasCountry && hasRegion;
+  const showPhone = isSignUp && hasName && hasSurname && hasCountry && hasRegion && hasOccupation;
+  const showEmail = !isSignUp || (showPhone && hasPhone);
+  const showPasswordField = showEmail && hasEmail;
+  const showConfirmPasswordField = isSignUp && showPasswordField && hasPassword;
 
   useEffect(() => {
     if (!supabase) return;
@@ -323,7 +342,7 @@ export function AuthPage({ mode }: AuthPageProps) {
               <form className="auth-form" onSubmit={handleSubmit}>
                 {isSignUp && (
                   <div className="auth-name-fields">
-                    <div>
+                    <div className="auth-field-step">
                       <label htmlFor="auth-first-name">Name</label>
                       <input
                         id="auth-first-name"
@@ -335,41 +354,48 @@ export function AuthPage({ mode }: AuthPageProps) {
                         placeholder="Your name"
                       />
                     </div>
-                    <div>
-                      <label htmlFor="auth-surname">Surname</label>
-                      <input
-                        id="auth-surname"
-                        type="text"
-                        autoComplete="family-name"
-                        required
-                        value={surname}
-                        onChange={(event) => setSurname(event.target.value)}
-                        placeholder="Your surname"
-                      />
-                    </div>
+                    {showSurname && (
+                      <div className="auth-field-step">
+                        <label htmlFor="auth-surname">Surname</label>
+                        <input
+                          id="auth-surname"
+                          type="text"
+                          autoComplete="family-name"
+                          required
+                          value={surname}
+                          onChange={(event) => setSurname(event.target.value)}
+                          placeholder="Your surname"
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
                 {isSignUp && (
                   <>
-                    <label htmlFor="auth-country">Country</label>
-                    <select
-                      id="auth-country"
-                      required
-                      value={country}
-                      onChange={(event) => {
-                        setCountry(event.target.value);
-                        setStateRegion("");
-                      }}
-                    >
-                      <option value="">Choose your country</option>
-                      {COUNTRIES.map((countryName) => (
-                        <option key={countryName} value={countryName}>
-                          {countryName}
-                        </option>
-                      ))}
-                    </select>
-                    {country === "Other" && (
+                    {showCountry && (
+                      <div className="auth-field-step">
+                        <label htmlFor="auth-country">Country</label>
+                        <select
+                          id="auth-country"
+                          required
+                          value={country}
+                          onChange={(event) => {
+                            setCountry(event.target.value);
+                            setStateRegion("");
+                          }}
+                        >
+                          <option value="">Choose your country</option>
+                          {COUNTRIES.map((countryName) => (
+                            <option key={countryName} value={countryName}>
+                              {countryName}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                    {showCountry && country === "Other" && (
                       <input
+                        className="auth-field-step"
                         id="auth-country-other"
                         type="text"
                         autoComplete="country-name"
@@ -379,134 +405,172 @@ export function AuthPage({ mode }: AuthPageProps) {
                         placeholder="Enter your country"
                       />
                     )}
-                    <label htmlFor="auth-state">State / province / region</label>
-                    {REGIONS[country] ? (
-                      <select
-                        id="auth-state"
-                        required
-                        value={stateRegion}
-                        onChange={(event) => setStateRegion(event.target.value)}
-                      >
-                        <option value="">Choose your state or region</option>
-                        {REGIONS[country].map((region) => (
-                          <option key={region} value={region}>
-                            {region}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <input
-                        id="auth-state"
-                        type="text"
-                        autoComplete="address-level1"
-                        required
-                        value={stateRegion}
-                        onChange={(event) => setStateRegion(event.target.value)}
-                        placeholder="Enter your state or region"
-                      />
+                    {showRegion && (
+                      <div className="auth-field-step">
+                        <label htmlFor="auth-state">State / province / region</label>
+                        {REGIONS[country] ? (
+                          <select
+                            id="auth-state"
+                            required
+                            value={stateRegion}
+                            onChange={(event) => setStateRegion(event.target.value)}
+                          >
+                            <option value="">Choose your state or region</option>
+                            {REGIONS[country].map((region) => (
+                              <option key={region} value={region}>
+                                {region}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            id="auth-state"
+                            type="text"
+                            autoComplete="address-level1"
+                            required
+                            value={stateRegion}
+                            onChange={(event) => setStateRegion(event.target.value)}
+                            placeholder="Enter your state or region"
+                          />
+                        )}
+                      </div>
                     )}
-                    <label htmlFor="auth-occupation">Occupation</label>
-                    <select
-                      id="auth-occupation"
-                      value={occupation}
-                      onChange={(event) => setOccupation(event.target.value)}
-                    >
-                      <option value="">Choose an occupation</option>
-                      {OCCUPATIONS.map((item) => (
-                        <option key={item} value={item}>
-                          {item}
-                        </option>
-                      ))}
-                    </select>
-                    {occupation === "Other" && (
-                      <input
-                        id="auth-occupation-other"
-                        type="text"
-                        required
-                        value={otherOccupation}
-                        onChange={(event) => setOtherOccupation(event.target.value)}
-                        placeholder="Enter your occupation"
-                      />
+                    {showOccupation && (
+                      <div className="auth-field-step">
+                        <label htmlFor="auth-occupation">Occupation</label>
+                        <select
+                          id="auth-occupation"
+                          value={occupation}
+                          onChange={(event) => {
+                            setOccupation(event.target.value);
+                            setOccupationSkipped(false);
+                          }}
+                        >
+                          <option value="">Choose an occupation</option>
+                          {OCCUPATIONS.map((item) => (
+                            <option key={item} value={item}>
+                              {item}
+                            </option>
+                          ))}
+                        </select>
+                        {occupation === "Other" && (
+                          <input
+                            id="auth-occupation-other"
+                            type="text"
+                            required
+                            value={otherOccupation}
+                            onChange={(event) => setOtherOccupation(event.target.value)}
+                            placeholder="Enter your occupation"
+                          />
+                        )}
+                        {!hasOccupation && (
+                          <button
+                            type="button"
+                            className="auth-field-skip"
+                            onClick={() => setOccupationSkipped(true)}
+                          >
+                            Skip optional occupation
+                          </button>
+                        )}
+                      </div>
                     )}
-                    <label htmlFor="auth-phone">Phone number</label>
-                    <input
-                      id="auth-phone"
-                      type="tel"
-                      autoComplete="tel"
-                      required
-                      value={phone}
-                      onChange={(event) => setPhone(event.target.value)}
-                      placeholder="Include your country code"
-                    />
+                    {showPhone && (
+                      <div className="auth-field-step">
+                        <label htmlFor="auth-phone">Phone number</label>
+                        <input
+                          id="auth-phone"
+                          type="tel"
+                          autoComplete="tel"
+                          required
+                          value={phone}
+                          onChange={(event) => setPhone(event.target.value)}
+                          placeholder="Include your country code"
+                        />
+                      </div>
+                    )}
                   </>
                 )}
-                <label htmlFor="auth-email">Email address</label>
-                <input
-                  id="auth-email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="you@example.com"
-                />
-                <label htmlFor="auth-password">Password</label>
-                <div className="password-field">
-                  <input
-                    id="auth-password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete={isSignUp ? "new-password" : "current-password"}
-                    minLength={8}
-                    required
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    placeholder="At least 8 characters"
-                  />
-                  <button
-                    type="button"
-                    className="password-toggle"
-                    onClick={() => setShowPassword((visible) => !visible)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                    title={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-                {isSignUp && (
-                  <>
-                    <label htmlFor="auth-confirm-password">Confirm password</label>
+                {showEmail && (
+                  <div className="auth-field-step">
+                    <label htmlFor="auth-email">Email address</label>
+                    <input
+                      id="auth-email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      placeholder="you@example.com"
+                    />
+                  </div>
+                )}
+                {showPasswordField && (
+                  <div className="auth-field-step">
+                    <label htmlFor="auth-password">Password</label>
                     <div className="password-field">
                       <input
-                        id="auth-confirm-password"
-                        type={showConfirmPassword ? "text" : "password"}
-                        autoComplete="new-password"
+                        id="auth-password"
+                        type={showPassword ? "text" : "password"}
+                        autoComplete={isSignUp ? "new-password" : "current-password"}
                         minLength={8}
                         required
-                        value={confirmPassword}
-                        onChange={(event) => setConfirmPassword(event.target.value)}
-                        placeholder="Enter your password again"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        placeholder="At least 8 characters"
                       />
                       <button
                         type="button"
                         className="password-toggle"
-                        onClick={() => setShowConfirmPassword((visible) => !visible)}
-                        aria-label={
-                          showConfirmPassword
-                            ? "Hide confirmed password"
-                            : "Show confirmed password"
-                        }
-                        title={
-                          showConfirmPassword
-                            ? "Hide confirmed password"
-                            : "Show confirmed password"
-                        }
+                        onClick={() => setShowPassword((visible) => !visible)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        title={showPassword ? "Hide password" : "Show password"}
                       >
-                        {showConfirmPassword ? (
+                        {showPassword ? (
                           <EyeOff className="h-4 w-4" />
                         ) : (
                           <Eye className="h-4 w-4" />
                         )}
                       </button>
+                    </div>
+                  </div>
+                )}
+                {showConfirmPasswordField && (
+                  <>
+                    <div className="auth-field-step">
+                      <label htmlFor="auth-confirm-password">Confirm password</label>
+                      <div className="password-field">
+                        <input
+                          id="auth-confirm-password"
+                          type={showConfirmPassword ? "text" : "password"}
+                          autoComplete="new-password"
+                          minLength={8}
+                          required
+                          value={confirmPassword}
+                          onChange={(event) => setConfirmPassword(event.target.value)}
+                          placeholder="Enter your password again"
+                        />
+                        <button
+                          type="button"
+                          className="password-toggle"
+                          onClick={() => setShowConfirmPassword((visible) => !visible)}
+                          aria-label={
+                            showConfirmPassword
+                              ? "Hide confirmed password"
+                              : "Show confirmed password"
+                          }
+                          title={
+                            showConfirmPassword
+                              ? "Hide confirmed password"
+                              : "Show confirmed password"
+                          }
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </>
                 )}
@@ -520,10 +584,12 @@ export function AuthPage({ mode }: AuthPageProps) {
                     {message}
                   </p>
                 )}
-                <button type="submit" className="auth-submit" disabled={loading}>
-                  {loading && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                  {loading ? "Please wait" : isSignUp ? "Create account" : "Sign in"}
-                </button>
+                {(!isSignUp && showPasswordField) || (isSignUp && showConfirmPasswordField) ? (
+                  <button type="submit" className="auth-submit" disabled={loading}>
+                    {loading && <LoaderCircle className="h-4 w-4 animate-spin" />}
+                    {loading ? "Please wait" : isSignUp ? "Create account" : "Sign in"}
+                  </button>
+                ) : null}
               </form>
             </>
           )}

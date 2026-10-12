@@ -190,6 +190,8 @@ function PracticePage() {
   const startTimeRef = useRef<number | null>(null);
   const wantListeningRef = useRef(false);
   const activeWordRef = useRef<HTMLSpanElement | null>(null);
+  const recognitionRestartRef = useRef<number | null>(null);
+  const startRecognitionRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     if (!supabase) {
@@ -330,6 +332,10 @@ function PracticePage() {
 
   const stopRecognition = useCallback(() => {
     wantListeningRef.current = false;
+    if (recognitionRestartRef.current !== null) {
+      window.clearTimeout(recognitionRestartRef.current);
+      recognitionRestartRef.current = null;
+    }
     try {
       recogRef.current?.stop();
     } catch {
@@ -376,6 +382,7 @@ function PracticePage() {
     rec.interimResults = true;
 
     rec.onresult = (e) => {
+      if (recogRef.current !== rec) return;
       let interimText = "";
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const r = e.results[i];
@@ -408,18 +415,26 @@ function PracticePage() {
         );
         wantListeningRef.current = false;
       } else if (e.error === "no-speech") {
-        // Silence is expected between phrases; continuous recognition stays active.
+        // Browser speech services may end a session after silence; onend resumes it.
       } else if (e.error === "aborted") {
-        // Browser-initiated aborts can happen during device audio-session changes.
+        // Treat browser-initiated aborts as a session boundary, not a user stop.
       } else if (e.error) {
         setMicError(`Microphone error: ${e.error}. You can still practice with tap-to-advance.`);
         wantListeningRef.current = false;
       }
     };
     rec.onend = () => {
-      wantListeningRef.current = false;
+      if (wantListeningRef.current && recogRef.current === rec) {
+        recognitionRestartRef.current = window.setTimeout(() => {
+          recognitionRestartRef.current = null;
+          if (!wantListeningRef.current || recogRef.current !== rec) return;
+          recogRef.current = null;
+          startRecognitionRef.current();
+        }, 300);
+        return;
+      }
       if (recogRef.current === rec) recogRef.current = null;
-      setListening(false);
+      if (!wantListeningRef.current) setListening(false);
     };
 
     recogRef.current = rec;
@@ -429,9 +444,14 @@ function PracticePage() {
     } catch {
       wantListeningRef.current = false;
       recogRef.current = null;
+      setListening(false);
       setMicError("Could not start the microphone. Please try again.");
     }
   }, [advanceWithTranscript]);
+
+  useEffect(() => {
+    startRecognitionRef.current = startRecognition;
+  }, [startRecognition]);
 
   useEffect(() => () => stopRecognition(), [stopRecognition]);
 
