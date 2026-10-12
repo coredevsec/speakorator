@@ -94,8 +94,8 @@ function VoiceTypingPage() {
   const userIdRef = useRef("");
   const restartTimerRef = useRef<number | null>(null);
   const transcriptRef = useRef("");
-  const sessionIdRef = useRef(0);
-  const lastFinalRef = useRef<{ phrase: string; sessionId: number; time: number } | null>(null);
+  const recentFinalPhrasesRef = useRef(new Map<string, number>());
+  const lastFinalSessionRef = useRef(-1);
 
   useEffect(() => {
     setSupported(getRecognitionConstructor() !== null);
@@ -158,7 +158,6 @@ function VoiceTypingPage() {
     setError("");
     wantsListeningRef.current = true;
     const recognition = new RecognitionConstructor();
-    let sessionId = ++sessionIdRef.current;
     const handledFinalResults = new Set<number>();
     recognition.lang = typeof navigator !== "undefined" ? navigator.language || "en-US" : "en-US";
     recognition.continuous = true;
@@ -174,11 +173,15 @@ function VoiceTypingPage() {
           if (handledFinalResults.has(index)) continue;
           handledFinalResults.add(index);
           const tokens = speechTokens(spokenText);
-          const previous = lastFinalRef.current;
           const phrase = normalizedPhrase(spokenText);
           const now = Date.now();
-          const repeatedFinal = previous?.phrase === phrase && now - previous.time < 2500;
-          const crossesSession = previous && previous.sessionId !== sessionId;
+          for (const [recentPhrase, timestamp] of recentFinalPhrasesRef.current) {
+            if (now - timestamp > 5000) recentFinalPhrasesRef.current.delete(recentPhrase);
+          }
+          const lastPhraseTime = recentFinalPhrasesRef.current.get(phrase);
+          const repeatedFinal =
+            tokens.length > 1 && lastPhraseTime !== undefined && now - lastPhraseTime < 2500;
+          const crossesSession = lastFinalSessionRef.current !== sessionId;
           let overlap = 0;
           if (!repeatedFinal && crossesSession) {
             const committedTokens = speechTokens(transcriptRef.current);
@@ -198,7 +201,8 @@ function VoiceTypingPage() {
             transcriptRef.current = `${transcriptRef.current.trimEnd()}${transcriptRef.current.trim() ? " " : ""}${cleanText}`;
             setTranscript(transcriptRef.current);
           }
-          lastFinalRef.current = { phrase, sessionId, time: now };
+          if (!repeatedFinal) recentFinalPhrasesRef.current.set(phrase, now);
+          lastFinalSessionRef.current = sessionId;
         } else if (!result.isFinal) {
           preview += result[0].transcript;
         }
@@ -230,7 +234,6 @@ function VoiceTypingPage() {
           restartTimerRef.current = null;
           if (!wantsListeningRef.current || recognitionRef.current !== recognition) return;
           handledFinalResults.clear();
-          sessionId = ++sessionIdRef.current;
           try {
             recognition.start();
           } catch {
@@ -326,18 +329,17 @@ function VoiceTypingPage() {
         <textarea
           id="voice-transcript"
           className="voice-typing-editor"
-          value={transcript}
+          value={`${transcript}${interimTranscript ? `${transcript ? " " : ""}${interimTranscript}` : ""}`}
           onChange={(event) => {
             transcriptRef.current = event.target.value;
             setTranscript(event.target.value);
+            setInterimTranscript("");
           }}
-          placeholder=""
+          placeholder="Start dictation to see your words here."
         />
-        {interimTranscript && (
-          <p className="voice-typing-status" aria-live="polite">
-            Hearing: {interimTranscript}
-          </p>
-        )}
+        <p className="sr-only" aria-live="polite">
+          {interimTranscript ? `Recognizing: ${interimTranscript}` : ""}
+        </p>
         {error && (
           <p className="auth-error" role="alert">
             {error}
