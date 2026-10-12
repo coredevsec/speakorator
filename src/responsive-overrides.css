@@ -189,6 +189,24 @@
   gap: 0.65rem;
   margin-top: 1rem;
 }
+.voice-typing-actions > button,
+.voice-typing-actions > a {
+  min-height: 2.25rem;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.8rem;
+}
+.voice-typing-actions > button svg,
+.voice-typing-actions > a svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+.auth-form input::placeholder {
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+.auth-form input:focus::placeholder {
+  opacity: 0;
+}
 .voice-typing-status {
   min-height: 1.5rem;
   margin-top: 0.75rem;
@@ -386,8 +404,13 @@
     font-size: 0.9rem;
   }
   .voice-typing-actions button {
-    min-height: 2.35rem;
-    padding: 0.5rem 0.7rem;
-    font-size: 0.82rem;
+    min-height: 2.1rem;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.76rem;
+  }
+  .voice-typing-actions > a {
+    min-height: 2.1rem;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.76rem;
   }
 }

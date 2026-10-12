@@ -79,6 +79,7 @@ function VoiceTypingPage() {
   const [saveMessage, setSaveMessage] = useState("");
   const recognitionRef = useRef<Recognition | null>(null);
   const wantsListeningRef = useRef(false);
+  const userIdRef = useRef("");
 
   useEffect(() => {
     setSupported(getRecognitionConstructor() !== null);
@@ -104,6 +105,7 @@ function VoiceTypingPage() {
         return;
       }
       setUserId(user.id);
+      userIdRef.current = user.id;
       setChecking(false);
     });
     return () => {
@@ -205,6 +207,7 @@ function VoiceTypingPage() {
         // The browser may already have stopped recognition.
       }
       recognitionRef.current = null;
+      if (userIdRef.current) saveVoiceTypingPreference(userIdRef.current, false);
     },
     [],
   );
@@ -297,7 +300,13 @@ function VoiceTypingPage() {
           >
             <BookmarkPlus className="h-4 w-4" /> Save to Library
           </button>
-          <Link to="/practice" className="settings-billing-link">
+          <Link
+            to="/practice"
+            className="settings-billing-link"
+            onClick={() => {
+              if (userId) saveVoiceTypingPreference(userId, false);
+            }}
+          >
             <ArrowLeft className="h-4 w-4" /> Back to practice
           </Link>
         </div>
