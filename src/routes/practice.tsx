@@ -5,7 +5,6 @@ import {
   BookMarked,
   CreditCard,
   Mic,
-  MicOff,
   RotateCcw,
   Gauge,
   CheckCircle2,
@@ -14,8 +13,6 @@ import {
   Plus,
   ArrowRight,
   ArrowLeft,
-  Pause,
-  Play,
   LockKeyhole,
   Palette,
   Sparkles,
@@ -380,6 +377,7 @@ function PracticePage() {
     rec.lang = typeof navigator !== "undefined" ? navigator.language || "en-US" : "en-US";
     rec.continuous = true;
     rec.interimResults = true;
+    const handledFinalResults = new Set<number>();
 
     rec.onresult = (e) => {
       if (recogRef.current !== rec) return;
@@ -388,6 +386,8 @@ function PracticePage() {
         const r = e.results[i];
         if (!r) continue;
         if (r.isFinal) {
+          if (handledFinalResults.has(i)) continue;
+          handledFinalResults.add(i);
           const fillerMatches = r[0].transcript.match(/\b(?:um+|uh+)\b/gi);
           if (fillerMatches?.length) {
             setFillerCount((count) => count + fillerMatches.length);
@@ -933,14 +933,9 @@ function PracticePage() {
                 </button>
                 <div className="reading-tools">
                   {phase === "reading" ? (
-                    <button
-                      onClick={() => (listening ? stopRecognition() : startRecognition())}
-                      className={`reader-control ${listening ? "reader-control-active mic-live" : ""}`}
-                      aria-label={listening ? "Pause microphone" : "Resume microphone"}
-                      title={listening ? "Pause microphone" : "Resume microphone"}
-                    >
-                      {listening ? <Pause className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
-                    </button>
+                    <span className="reader-listening-state" role="status">
+                      {listening ? "Listening" : "Reconnecting microphone"}
+                    </span>
                   ) : (
                     <span className="reader-complete">
                       <CheckCircle2 className="h-5 w-5" /> Passage complete

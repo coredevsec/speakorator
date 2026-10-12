@@ -16,6 +16,14 @@ type SavedDictation = {
   savedAt: string;
 };
 
+function speechTokens(text: string): string[] {
+  return text.trim().split(/\s+/).filter(Boolean);
+}
+
+function normalizeSpeechToken(token: string): string {
+  return token.toLowerCase().replace(/[^\p{L}\p{N}']/gu, "");
+}
+
 type RecognitionResult = {
   isFinal: boolean;
   0: { transcript: string };
@@ -82,6 +90,8 @@ function VoiceTypingPage() {
   const userIdRef = useRef("");
   const restartTimerRef = useRef<number | null>(null);
   const startListeningRef = useRef<() => void>(() => {});
+  const sessionIdRef = useRef(0);
+  const lastFinalRef = useRef<{ tokens: string[]; sessionId: number; time: number } | null>(null);
 
   useEffect(() => {
     setSupported(getRecognitionConstructor() !== null);
@@ -144,6 +154,8 @@ function VoiceTypingPage() {
     setError("");
     wantsListeningRef.current = true;
     const recognition = new RecognitionConstructor();
+    const sessionId = ++sessionIdRef.current;
+    const handledFinalResults = new Set<number>();
     recognition.lang = typeof navigator !== "undefined" ? navigator.language || "en-US" : "en-US";
     recognition.continuous = true;
     recognition.interimResults = true;
@@ -155,9 +167,32 @@ function VoiceTypingPage() {
         if (!result) continue;
         const spokenText = result[0].transcript.trim();
         if (result.isFinal && spokenText) {
-          setTranscript(
-            (current) => `${current.trimEnd()}${current.trim() ? " " : ""}${spokenText}`,
-          );
+          if (handledFinalResults.has(index)) continue;
+          handledFinalResults.add(index);
+          const tokens = speechTokens(spokenText);
+          const previous = lastFinalRef.current;
+          const crossesSession =
+            previous && previous.sessionId !== sessionId && Date.now() - previous.time < 3000;
+          let overlap = 0;
+          if (crossesSession && previous) {
+            const maxOverlap = Math.min(8, previous.tokens.length, tokens.length);
+            for (let size = maxOverlap; size > 0; size -= 1) {
+              const oldSuffix = previous.tokens.slice(-size).map(normalizeSpeechToken);
+              const newPrefix = tokens.slice(0, size).map(normalizeSpeechToken);
+              if (oldSuffix.every((token, tokenIndex) => token === newPrefix[tokenIndex])) {
+                overlap = size;
+                break;
+              }
+            }
+          }
+          const newTokens = tokens.slice(overlap);
+          if (newTokens.length > 0) {
+            const cleanText = newTokens.join(" ");
+            setTranscript(
+              (current) => `${current.trimEnd()}${current.trim() ? " " : ""}${cleanText}`,
+            );
+          }
+          lastFinalRef.current = { tokens, sessionId, time: Date.now() };
         } else if (!result.isFinal) {
           preview += result[0].transcript;
         }
