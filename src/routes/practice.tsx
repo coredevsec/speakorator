@@ -1041,11 +1041,6 @@ function PracticePage() {
                   {micError}
                 </p>
               )}
-              {interim && listening && (
-                <p className="reading-heard" aria-live="polite">
-                  Hearing: “{interim}”
-                </p>
-              )}
             </>
           )}
 

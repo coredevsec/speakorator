@@ -95,7 +95,8 @@ function VoiceTypingPage() {
   const restartTimerRef = useRef<number | null>(null);
   const transcriptRef = useRef("");
   const recentFinalPhrasesRef = useRef(new Map<string, number>());
-  const lastFinalSessionRef = useRef(-1);
+  const interimRef = useRef("");
+  const flushedInterimRef = useRef<{ tokens: string[]; time: number } | null>(null);
 
   useEffect(() => {
     setSupported(getRecognitionConstructor() !== null);
@@ -129,9 +130,23 @@ function VoiceTypingPage() {
     };
   }, [navigate]);
 
+  const commitInterim = useCallback(() => {
+    const pending = interimRef.current.trim();
+    if (!pending) return transcriptRef.current;
+    const tokens = speechTokens(pending);
+    const committed = `${transcriptRef.current.trimEnd()}${transcriptRef.current.trim() ? " " : ""}${tokens.join(" ")}`;
+    transcriptRef.current = committed;
+    flushedInterimRef.current = { tokens, time: Date.now() };
+    interimRef.current = "";
+    setTranscript(committed);
+    setInterimTranscript("");
+    return committed;
+  }, []);
+
   const stopListening = useCallback(
     (savePreference = true) => {
       wantsListeningRef.current = false;
+      commitInterim();
       if (restartTimerRef.current !== null) {
         window.clearTimeout(restartTimerRef.current);
         restartTimerRef.current = null;
@@ -146,7 +161,7 @@ function VoiceTypingPage() {
       setInterimTranscript("");
       if (savePreference && userId) saveVoiceTypingPreference(userId, false);
     },
-    [userId],
+    [commitInterim, userId],
   );
 
   const startListening = useCallback(() => {
@@ -181,13 +196,12 @@ function VoiceTypingPage() {
           const lastPhraseTime = recentFinalPhrasesRef.current.get(phrase);
           const repeatedFinal =
             tokens.length > 1 && lastPhraseTime !== undefined && now - lastPhraseTime < 2500;
-          const crossesSession = lastFinalSessionRef.current !== sessionId;
           let overlap = 0;
-          if (!repeatedFinal && crossesSession) {
-            const committedTokens = speechTokens(transcriptRef.current);
-            const maxOverlap = Math.min(12, committedTokens.length, tokens.length);
+          const flushedInterim = flushedInterimRef.current;
+          if (!repeatedFinal && flushedInterim && now - flushedInterim.time < 5000) {
+            const maxOverlap = Math.min(flushedInterim.tokens.length, tokens.length);
             for (let size = maxOverlap; size > 0; size -= 1) {
-              const oldSuffix = committedTokens.slice(-size).map(normalizeSpeechToken);
+              const oldSuffix = flushedInterim.tokens.slice(-size).map(normalizeSpeechToken);
               const newPrefix = tokens.slice(0, size).map(normalizeSpeechToken);
               if (oldSuffix.every((token, tokenIndex) => token === newPrefix[tokenIndex])) {
                 overlap = size;
@@ -195,6 +209,7 @@ function VoiceTypingPage() {
               }
             }
           }
+          flushedInterimRef.current = null;
           const newTokens = repeatedFinal ? [] : tokens.slice(overlap);
           if (newTokens.length > 0) {
             const cleanText = newTokens.join(" ");
@@ -202,12 +217,12 @@ function VoiceTypingPage() {
             setTranscript(transcriptRef.current);
           }
           if (!repeatedFinal) recentFinalPhrasesRef.current.set(phrase, now);
-          lastFinalSessionRef.current = sessionId;
         } else if (!result.isFinal) {
           preview += result[0].transcript;
         }
       }
-      setInterimTranscript(preview.trim());
+      interimRef.current = preview.trim();
+      setInterimTranscript(interimRef.current);
     };
     recognition.onerror = (event) => {
       if (event.error === "aborted") {
@@ -230,6 +245,7 @@ function VoiceTypingPage() {
     };
     recognition.onend = () => {
       if (wantsListeningRef.current && recognitionRef.current === recognition) {
+        commitInterim();
         restartTimerRef.current = window.setTimeout(() => {
           restartTimerRef.current = null;
           if (!wantsListeningRef.current || recognitionRef.current !== recognition) return;
@@ -262,7 +278,7 @@ function VoiceTypingPage() {
       setListening(false);
       setError("Could not start voice typing. Please try again.");
     }
-  }, [stopListening, userId]);
+  }, [commitInterim, stopListening, userId]);
 
   useEffect(
     () => () => {
@@ -286,7 +302,7 @@ function VoiceTypingPage() {
   }, [saveMessage]);
 
   function saveDictation() {
-    const content = transcript.trim();
+    const content = commitInterim().trim();
     if (!content) return;
     try {
       const saved = JSON.parse(
@@ -332,6 +348,8 @@ function VoiceTypingPage() {
           value={`${transcript}${interimTranscript ? `${transcript ? " " : ""}${interimTranscript}` : ""}`}
           onChange={(event) => {
             transcriptRef.current = event.target.value;
+            interimRef.current = "";
+            flushedInterimRef.current = null;
             setTranscript(event.target.value);
             setInterimTranscript("");
           }}
@@ -365,7 +383,7 @@ function VoiceTypingPage() {
             type="button"
             className="settings-billing-link"
             onClick={saveDictation}
-            disabled={!transcript.trim()}
+            disabled={!transcript.trim() && !interimTranscript.trim()}
           >
             <BookmarkPlus className="h-4 w-4" /> Save to Library
           </button>
