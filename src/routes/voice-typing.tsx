@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, BookmarkPlus, Mic, MicOff } from "lucide-react";
+import { ArrowLeft, BookmarkPlus, Mic, Pause, Play } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { SiteNavbar } from "../components/site-navbar";
@@ -328,6 +328,13 @@ function VoiceTypingPage() {
     }
   }
 
+  const hasTranscript = Boolean(transcript.trim() || interimTranscript.trim());
+  const dictationActionLabel = listening
+    ? "Pause dictation"
+    : hasTranscript
+      ? "Resume dictation"
+      : "Start dictation";
+
   if (checking) return <main className="auth-page min-h-screen" aria-busy="true" />;
 
   return (
@@ -375,9 +382,16 @@ function VoiceTypingPage() {
             className="settings-save"
             onClick={() => (listening ? stopListening() : startListening())}
             disabled={!supported}
+            aria-label={dictationActionLabel}
           >
-            {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-            {listening ? "Stop dictation" : "Start dictation"}
+            {listening ? (
+              <Pause className="h-4 w-4" />
+            ) : hasTranscript ? (
+              <Play className="h-4 w-4" />
+            ) : (
+              <Mic className="h-4 w-4" />
+            )}
+            {dictationActionLabel}
           </button>
           <button
             type="button"

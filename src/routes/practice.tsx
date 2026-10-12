@@ -5,6 +5,8 @@ import {
   BookMarked,
   CreditCard,
   Mic,
+  Pause,
+  Play,
   RotateCcw,
   Gauge,
   CheckCircle2,
@@ -148,6 +150,7 @@ function PracticePage() {
   const [spokenCount, setSpokenCount] = useState(0);
   const [fillerCount, setFillerCount] = useState(0);
   const [listening, setListening] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [interim, setInterim] = useState("");
   const [micError, setMicError] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -185,6 +188,8 @@ function PracticePage() {
   const recogRef = useRef<SpeechRecognitionLike | null>(null);
   const cursorRef = useRef(0);
   const startTimeRef = useRef<number | null>(null);
+  const elapsedBaseRef = useRef(0);
+  const hasStartedTimingRef = useRef(false);
   const wantListeningRef = useRef(false);
   const activeWordRef = useRef<HTMLSpanElement | null>(null);
   const recognitionRestartRef = useRef<number | null>(null);
@@ -315,12 +320,14 @@ function PracticePage() {
   }, []);
 
   useEffect(() => {
-    if (phase !== "reading") return;
+    if (phase !== "reading" || paused) return;
     const id = setInterval(() => {
-      if (startTimeRef.current) setElapsed((Date.now() - startTimeRef.current) / 1000);
+      if (startTimeRef.current) {
+        setElapsed(elapsedBaseRef.current + (Date.now() - startTimeRef.current) / 1000);
+      }
     }, 500);
     return () => clearInterval(id);
-  }, [phase]);
+  }, [paused, phase]);
 
   useEffect(() => {
     activeWordRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
@@ -351,7 +358,10 @@ function PracticePage() {
         if (target && (target === h || target.startsWith(h) || h.startsWith(target))) cursor += 1;
       }
       if (cursor !== cursorRef.current) {
-        if (!startTimeRef.current) startTimeRef.current = Date.now();
+        if (!startTimeRef.current) {
+          startTimeRef.current = Date.now();
+          hasStartedTimingRef.current = true;
+        }
         cursorRef.current = cursor;
         setCurrentIdx(cursor);
         setSpokenCount(cursor);
@@ -466,7 +476,10 @@ function PracticePage() {
     setSpokenCount(0);
     setFillerCount(0);
     setElapsed(0);
+    elapsedBaseRef.current = 0;
+    hasStartedTimingRef.current = false;
     startTimeRef.current = null;
+    setPaused(false);
     setText(content);
     setControlsVisible(false);
     setPhase("reading");
@@ -475,6 +488,7 @@ function PracticePage() {
 
   const reset = () => {
     stopRecognition();
+    setPaused(false);
     setPhase("input");
     setText("");
     setSelectedSample("");
@@ -486,7 +500,10 @@ function PracticePage() {
 
   const advanceManually = useCallback(() => {
     if (phase !== "reading") return;
-    if (!startTimeRef.current) startTimeRef.current = Date.now();
+    if (!startTimeRef.current) {
+      startTimeRef.current = Date.now();
+      hasStartedTimingRef.current = true;
+    }
     const next = Math.min(cursorRef.current + 1, normalized.length);
     cursorRef.current = next;
     setCurrentIdx(next);
@@ -504,6 +521,23 @@ function PracticePage() {
     setCurrentIdx(previous);
     setSpokenCount(previous);
   }, [phase]);
+
+  const togglePause = () => {
+    if (paused) {
+      setPaused(false);
+      if (hasStartedTimingRef.current) startTimeRef.current = Date.now();
+      startRecognition();
+      return;
+    }
+    stopRecognition();
+    if (startTimeRef.current) {
+      elapsedBaseRef.current += (Date.now() - startTimeRef.current) / 1000;
+      startTimeRef.current = null;
+      setElapsed(elapsedBaseRef.current);
+    }
+    setInterim("");
+    setPaused(true);
+  };
 
   useEffect(() => {
     if (phase !== "reading") return;
@@ -534,7 +568,10 @@ function PracticePage() {
     setSpokenCount(0);
     setFillerCount(0);
     setElapsed(0);
+    elapsedBaseRef.current = 0;
+    hasStartedTimingRef.current = false;
     startTimeRef.current = null;
+    setPaused(false);
     setInterim("");
     setControlsVisible(false);
     setPhase("reading");
@@ -935,12 +972,22 @@ function PracticePage() {
                 <div className="reading-tools">
                   {phase === "reading" ? (
                     <span className="reader-listening-state" role="status">
-                      {listening ? "Listening" : "Reconnecting microphone"}
+                      {paused ? "Paused" : listening ? "Listening" : "Reconnecting microphone"}
                     </span>
                   ) : (
                     <span className="reader-complete">
                       <CheckCircle2 className="h-5 w-5" /> Passage complete
                     </span>
+                  )}
+                  {phase === "reading" && (
+                    <button
+                      onClick={togglePause}
+                      className="reader-control"
+                      aria-label={paused ? "Resume reading" : "Pause reading"}
+                      title={paused ? "Resume reading" : "Pause reading"}
+                    >
+                      {paused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
+                    </button>
                   )}
                   <button
                     onClick={stepBackward}
