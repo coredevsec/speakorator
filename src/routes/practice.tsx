@@ -184,6 +184,7 @@ function PracticePage() {
 
   const recogRef = useRef<SpeechRecognitionLike | null>(null);
   const cursorRef = useRef(0);
+  const normalizedWordsRef = useRef<string[]>([]);
   const startTimeRef = useRef<number | null>(null);
   const wantListeningRef = useRef(false);
   const activeWordRef = useRef<HTMLSpanElement | null>(null);
@@ -347,10 +348,11 @@ function PracticePage() {
     (transcript: string) => {
       const heard = splitWords(transcript).map(normalize).filter(Boolean);
       if (heard.length === 0) return;
+      const targetWords = normalizedWordsRef.current;
       let cursor = cursorRef.current;
       for (const h of heard) {
-        const matchedOffset = normalized
-          .slice(cursor, Math.min(cursor + 5, normalized.length))
+        const matchedOffset = targetWords
+          .slice(cursor, Math.min(cursor + 5, targetWords.length))
           .findIndex((target) => target === h || target.startsWith(h) || h.startsWith(target));
         if (matchedOffset >= 0) cursor += matchedOffset + 1;
       }
@@ -359,13 +361,13 @@ function PracticePage() {
         cursorRef.current = cursor;
         setCurrentIdx(cursor);
         setSpokenCount(cursor);
-        if (cursor >= normalized.length && normalized.length > 0) {
+        if (cursor >= targetWords.length && targetWords.length > 0) {
           stopRecognition();
           setPhase("done");
         }
       }
     },
-    [normalized, stopRecognition],
+    [stopRecognition],
   );
 
   const startRecognition = useCallback(() => {
@@ -464,6 +466,7 @@ function PracticePage() {
   const beginReading = (content: string) => {
     const w = splitWords(content);
     if (w.length < 2) return;
+    normalizedWordsRef.current = w.map(normalize);
     setWords(w);
     cursorRef.current = 0;
     setCurrentIdx(0);
