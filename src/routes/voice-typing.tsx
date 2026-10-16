@@ -94,6 +94,7 @@ function VoiceTypingPage() {
   const wantsListeningRef = useRef(false);
   const userIdRef = useRef("");
   const restartTimerRef = useRef<number | null>(null);
+  const restartAttemptsRef = useRef(0);
   const transcriptRef = useRef("");
   const recentFinalPhrasesRef = useRef(new Map<string, number>());
   const interimRef = useRef("");
@@ -173,13 +174,40 @@ function VoiceTypingPage() {
     }
     setError("");
     wantsListeningRef.current = true;
+    restartAttemptsRef.current = 0;
     const recognition = new RecognitionConstructor();
     const handledFinalResults = new Set<number>();
     recognition.lang = typeof navigator !== "undefined" ? navigator.language || "en-US" : "en-US";
     recognition.continuous = true;
     recognition.interimResults = true;
+    const scheduleRestart = () => {
+      if (!wantsListeningRef.current || recognitionRef.current !== recognition) return;
+      if (restartAttemptsRef.current >= 5) {
+        wantsListeningRef.current = false;
+        recognitionRef.current = null;
+        setListening(false);
+        setError(
+          "Speech recognition could not reconnect. Check your connection and tap Start dictation to retry.",
+        );
+        return;
+      }
+      const delay = Math.min(500 * 2 ** restartAttemptsRef.current, 8000);
+      restartAttemptsRef.current += 1;
+      restartTimerRef.current = window.setTimeout(() => {
+        restartTimerRef.current = null;
+        if (!wantsListeningRef.current || recognitionRef.current !== recognition) return;
+        handledFinalResults.clear();
+        try {
+          recognition.start();
+        } catch {
+          scheduleRestart();
+        }
+      }, delay);
+    };
     recognition.onresult = (event) => {
       if (recognitionRef.current !== recognition) return;
+      restartAttemptsRef.current = 0;
+      setError("");
       let preview = "";
       for (let index = event.resultIndex; index < event.results.length; index += 1) {
         const result = event.results[index];
@@ -235,10 +263,7 @@ function VoiceTypingPage() {
         setError("No microphone is available. Connect or enable one, then try again.");
         stopListening();
       } else if (event.error === "network") {
-        setError(
-          "Speech recognition could not reach the browser's speech service. Check your connection and try again.",
-        );
-        stopListening();
+        setError("Speech connection interrupted. Reconnecting...");
       } else if (event.error !== "no-speech" && event.error) {
         setError(`Voice typing error: ${event.error}. Please try again.`);
         stopListening();
@@ -247,19 +272,7 @@ function VoiceTypingPage() {
     recognition.onend = () => {
       if (wantsListeningRef.current && recognitionRef.current === recognition) {
         commitInterim();
-        restartTimerRef.current = window.setTimeout(() => {
-          restartTimerRef.current = null;
-          if (!wantsListeningRef.current || recognitionRef.current !== recognition) return;
-          handledFinalResults.clear();
-          try {
-            recognition.start();
-          } catch {
-            wantsListeningRef.current = false;
-            recognitionRef.current = null;
-            setListening(false);
-            setError("The browser ended microphone capture. Tap Start dictation to resume.");
-          }
-        }, 500);
+        scheduleRestart();
         return;
       }
       if (recognitionRef.current === recognition) recognitionRef.current = null;

@@ -189,6 +189,7 @@ function PracticePage() {
   const wantListeningRef = useRef(false);
   const activeWordRef = useRef<HTMLSpanElement | null>(null);
   const recognitionRestartRef = useRef<number | null>(null);
+  const recognitionRestartAttemptsRef = useRef(0);
 
   useEffect(() => {
     const client = supabase;
@@ -378,14 +379,41 @@ function PracticePage() {
     }
     setMicError(null);
     wantListeningRef.current = true;
+    recognitionRestartAttemptsRef.current = 0;
     const rec = new Ctor();
     rec.lang = typeof navigator !== "undefined" ? navigator.language || "en-US" : "en-US";
     rec.continuous = true;
     rec.interimResults = true;
     const handledFinalResults = new Set<number>();
+    const scheduleRestart = () => {
+      if (!wantListeningRef.current || recogRef.current !== rec) return;
+      if (recognitionRestartAttemptsRef.current >= 5) {
+        wantListeningRef.current = false;
+        recogRef.current = null;
+        setListening(false);
+        setMicError(
+          "Speech recognition could not reconnect. Check your connection and restart the passage.",
+        );
+        return;
+      }
+      const delay = Math.min(500 * 2 ** recognitionRestartAttemptsRef.current, 8000);
+      recognitionRestartAttemptsRef.current += 1;
+      recognitionRestartRef.current = window.setTimeout(() => {
+        recognitionRestartRef.current = null;
+        if (!wantListeningRef.current || recogRef.current !== rec) return;
+        handledFinalResults.clear();
+        try {
+          rec.start();
+        } catch {
+          scheduleRestart();
+        }
+      }, delay);
+    };
 
     rec.onresult = (e) => {
       if (recogRef.current !== rec) return;
+      recognitionRestartAttemptsRef.current = 0;
+      setMicError(null);
       let interimText = "";
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const r = e.results[i];
@@ -421,6 +449,8 @@ function PracticePage() {
         wantListeningRef.current = false;
       } else if (e.error === "no-speech") {
         // Browser speech services may end a session after silence; onend resumes it.
+      } else if (e.error === "network") {
+        setMicError("Speech connection interrupted. Reconnecting...");
       } else if (e.error === "aborted") {
         // Treat browser-initiated aborts as a session boundary, not a user stop.
       } else if (e.error) {
@@ -430,19 +460,7 @@ function PracticePage() {
     };
     rec.onend = () => {
       if (wantListeningRef.current && recogRef.current === rec) {
-        recognitionRestartRef.current = window.setTimeout(() => {
-          recognitionRestartRef.current = null;
-          if (!wantListeningRef.current || recogRef.current !== rec) return;
-          handledFinalResults.clear();
-          try {
-            rec.start();
-          } catch {
-            wantListeningRef.current = false;
-            recogRef.current = null;
-            setListening(false);
-            setMicError("The browser ended microphone capture. Restart the passage to try again.");
-          }
-        }, 500);
+        scheduleRestart();
         return;
       }
       if (recogRef.current === rec) recogRef.current = null;
