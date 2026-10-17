@@ -54,7 +54,7 @@ type Recognition = {
   onend: (() => void) | null;
   onerror: ((event: { error?: string }) => void) | null;
   start: () => void;
-  stop: () => void;
+  abort: () => void;
 };
 
 function getRecognitionConstructor(): (new () => Recognition) | null {
@@ -95,6 +95,7 @@ function VoiceTypingPage() {
   const [supported, setSupported] = useState(false);
   const [speechLanguage, setSpeechLanguage] = useState<SpeechLanguage>("en-US");
   const [listening, setListening] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [interimTranscript, setInterimTranscript] = useState("");
   const [error, setError] = useState("");
@@ -163,13 +164,15 @@ function VoiceTypingPage() {
         window.clearTimeout(restartTimerRef.current);
         restartTimerRef.current = null;
       }
+      const recognition = recognitionRef.current;
+      recognitionRef.current = null;
       try {
-        recognitionRef.current?.stop();
+        recognition?.abort();
       } catch {
         // The browser may already have stopped recognition.
       }
-      recognitionRef.current = null;
       setListening(false);
+      setStarting(false);
       setInterimTranscript("");
       if (savePreference && userId) saveVoiceTypingPreference(userId, false);
     },
@@ -177,6 +180,7 @@ function VoiceTypingPage() {
   );
 
   const startListening = useCallback(() => {
+    if (wantsListeningRef.current) return;
     const RecognitionConstructor = getRecognitionConstructor();
     if (!RecognitionConstructor) {
       setError("Voice typing is not supported in this browser. Try Chrome or Edge.");
@@ -184,6 +188,7 @@ function VoiceTypingPage() {
     }
     setError("");
     wantsListeningRef.current = true;
+    setStarting(true);
     restartAttemptsRef.current = 0;
     const recognition = new RecognitionConstructor();
     const handledFinalResults = new Set<number>();
@@ -191,10 +196,16 @@ function VoiceTypingPage() {
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.onaudiostart = () => {
-      if (recognitionRef.current === recognition) setListening(true);
+      if (recognitionRef.current === recognition) {
+        setStarting(false);
+        setListening(true);
+      }
     };
     recognition.onaudioend = () => {
-      if (recognitionRef.current === recognition) setListening(false);
+      if (recognitionRef.current === recognition) {
+        setListening(false);
+        if (wantsListeningRef.current) setStarting(true);
+      }
     };
     const scheduleRestart = () => {
       if (!wantsListeningRef.current || recognitionRef.current !== recognition) return;
@@ -202,6 +213,7 @@ function VoiceTypingPage() {
         wantsListeningRef.current = false;
         recognitionRef.current = null;
         setListening(false);
+        setStarting(false);
         setError(
           "Speech recognition could not reconnect. Check your connection and tap Start dictation to retry.",
         );
@@ -213,6 +225,7 @@ function VoiceTypingPage() {
         restartTimerRef.current = null;
         if (!wantsListeningRef.current || recognitionRef.current !== recognition) return;
         handledFinalResults.clear();
+        setStarting(true);
         try {
           recognition.start();
         } catch {
@@ -288,11 +301,13 @@ function VoiceTypingPage() {
     recognition.onend = () => {
       setListening(false);
       if (wantsListeningRef.current && recognitionRef.current === recognition) {
+        setStarting(true);
         commitInterim();
         scheduleRestart();
         return;
       }
       if (recognitionRef.current === recognition) recognitionRef.current = null;
+      setStarting(false);
       if (!wantsListeningRef.current) {
         setListening(false);
         setInterimTranscript("");
@@ -306,6 +321,7 @@ function VoiceTypingPage() {
       wantsListeningRef.current = false;
       recognitionRef.current = null;
       setListening(false);
+      setStarting(false);
       setError("Could not start voice typing. Please try again.");
     }
   }, [commitInterim, speechLanguage, stopListening, userId]);
@@ -314,12 +330,13 @@ function VoiceTypingPage() {
     () => () => {
       wantsListeningRef.current = false;
       if (restartTimerRef.current !== null) window.clearTimeout(restartTimerRef.current);
+      const recognition = recognitionRef.current;
+      recognitionRef.current = null;
       try {
-        recognitionRef.current?.stop();
+        recognition?.abort();
       } catch {
         // The browser may already have stopped recognition.
       }
-      recognitionRef.current = null;
       if (userIdRef.current) saveVoiceTypingPreference(userIdRef.current, false);
     },
     [],
@@ -359,11 +376,15 @@ function VoiceTypingPage() {
   }
 
   const hasTranscript = Boolean(transcript.trim() || interimTranscript.trim());
+  const isActive = listening || starting;
   const dictationActionLabel = listening
     ? "Pause dictation"
-    : hasTranscript
-      ? "Resume dictation"
-      : "Start dictation";
+    : starting
+      ? "Connecting..."
+      : hasTranscript
+        ? "Resume dictation"
+        : "Start dictation";
+  const dictationAriaLabel = starting ? "Cancel dictation startup" : dictationActionLabel;
 
   if (checking) return <main className="auth-page min-h-screen" aria-busy="true" />;
 
@@ -381,7 +402,7 @@ function VoiceTypingPage() {
           <select
             aria-label="Speech recognition language"
             value={speechLanguage}
-            disabled={listening}
+            disabled={isActive}
             onChange={(event) => {
               const language = event.target.value as SpeechLanguage;
               setSpeechLanguage(language);
@@ -430,11 +451,11 @@ function VoiceTypingPage() {
           <button
             type="button"
             className="settings-save"
-            onClick={() => (listening ? stopListening() : startListening())}
+            onClick={() => (isActive ? stopListening() : startListening())}
             disabled={!supported}
-            aria-label={dictationActionLabel}
+            aria-label={dictationAriaLabel}
           >
-            {listening ? (
+            {isActive ? (
               <Pause className="h-4 w-4" />
             ) : hasTranscript ? (
               <Play className="h-4 w-4" />

@@ -77,7 +77,7 @@ type SpeechRecognitionLike = {
   onend: (() => void) | null;
   onerror: ((e: { error?: string }) => void) | null;
   start: () => void;
-  stop: () => void;
+  abort: () => void;
 };
 
 function getRecognitionCtor(): (new () => SpeechRecognitionLike) | null {
@@ -335,12 +335,13 @@ function PracticePage() {
       window.clearTimeout(recognitionRestartRef.current);
       recognitionRestartRef.current = null;
     }
+    const recognition = recogRef.current;
+    recogRef.current = null;
     try {
-      recogRef.current?.stop();
+      recognition?.abort();
     } catch {
       // noop
     }
-    recogRef.current = null;
     setListening(false);
     setInterim("");
   }, []);
