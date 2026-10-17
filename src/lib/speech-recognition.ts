@@ -57,13 +57,40 @@ export function normalizeSpeechToken(token: string): string {
 
 export function alignSpeechTokens(expected: string[], heard: string[], cursor: number): number {
   let nextCursor = cursor;
-  for (const token of heard) {
+  for (let heardIndex = 0; heardIndex < heard.length; heardIndex += 1) {
+    const token = heard[heardIndex];
     if (!token) continue;
     while (nextCursor < expected.length && !expected[nextCursor]) nextCursor += 1;
     if (expected[nextCursor] === token) {
       nextCursor += 1;
+      continue;
+    }
+    const confirmation = heard[heardIndex + 1];
+    for (let offset = 1; offset <= 2; offset += 1) {
+      const targetIndex = nextCursor + offset;
+      if (
+        expected[targetIndex] === token &&
+        confirmation &&
+        expected[targetIndex + 1] === confirmation
+      ) {
+        nextCursor = targetIndex + 2;
+        heardIndex += 1;
+        break;
+      }
     }
   }
   while (nextCursor < expected.length && !expected[nextCursor]) nextCursor += 1;
   return nextCursor;
+}
+
+export function stableSpeechPrefix(previous: string[], current: string[]): string[] {
+  let stableLength = 0;
+  while (
+    stableLength < previous.length &&
+    stableLength < current.length &&
+    previous[stableLength] === current[stableLength]
+  ) {
+    stableLength += 1;
+  }
+  return current.slice(0, stableLength);
 }

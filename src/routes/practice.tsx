@@ -27,6 +27,7 @@ import {
   normalizeSpeechToken,
   saveSpeechLanguage,
   SPEECH_LANGUAGES,
+  stableSpeechPrefix,
   type SpeechLanguage,
 } from "../lib/speech-recognition";
 import {
@@ -375,6 +376,7 @@ function PracticePage() {
     rec.continuous = true;
     rec.interimResults = true;
     const handledFinalResults = new Set<number>();
+    let previousInterimTokens: string[] = [];
     const scheduleRestart = () => {
       if (!wantListeningRef.current || recogRef.current !== rec) return;
       if (recognitionRestartAttemptsRef.current >= 5) {
@@ -420,11 +422,10 @@ function PracticePage() {
           interimText += r[0].transcript;
         }
       }
-      if (interimText) {
-        setInterim(interimText.trim());
-      } else {
-        setInterim("");
-      }
+      const interimTokens = splitWords(interimText).map(normalizeSpeechToken).filter(Boolean);
+      const stableTokens = stableSpeechPrefix(previousInterimTokens, interimTokens);
+      previousInterimTokens = interimTokens;
+      setInterim(stableTokens.join(" "));
     };
     rec.onerror = (e) => {
       if (e.error === "not-allowed" || e.error === "service-not-allowed") {
