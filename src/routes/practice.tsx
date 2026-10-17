@@ -71,6 +71,8 @@ type SpeechRecognitionLike = {
   lang: string;
   continuous: boolean;
   interimResults: boolean;
+  onaudiostart: (() => void) | null;
+  onaudioend: (() => void) | null;
   onresult: ((e: SpeechRecognitionEventLike) => void) | null;
   onend: (() => void) | null;
   onerror: ((e: { error?: string }) => void) | null;
@@ -375,6 +377,12 @@ function PracticePage() {
     rec.lang = speechLanguage;
     rec.continuous = true;
     rec.interimResults = true;
+    rec.onaudiostart = () => {
+      if (recogRef.current === rec) setListening(true);
+    };
+    rec.onaudioend = () => {
+      if (recogRef.current === rec) setListening(false);
+    };
     const handledFinalResults = new Set<number>();
     let previousInterimTokens: string[] = [];
     const scheduleRestart = () => {
@@ -452,6 +460,7 @@ function PracticePage() {
       }
     };
     rec.onend = () => {
+      setListening(false);
       if (wantListeningRef.current && recogRef.current === rec) {
         scheduleRestart();
         return;
@@ -463,7 +472,6 @@ function PracticePage() {
     recogRef.current = rec;
     try {
       rec.start();
-      setListening(true);
     } catch {
       wantListeningRef.current = false;
       recogRef.current = null;

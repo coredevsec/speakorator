@@ -48,6 +48,8 @@ type Recognition = {
   lang: string;
   continuous: boolean;
   interimResults: boolean;
+  onaudiostart: (() => void) | null;
+  onaudioend: (() => void) | null;
   onresult: ((event: RecognitionEvent) => void) | null;
   onend: (() => void) | null;
   onerror: ((event: { error?: string }) => void) | null;
@@ -188,6 +190,12 @@ function VoiceTypingPage() {
     recognition.lang = speechLanguage;
     recognition.continuous = true;
     recognition.interimResults = true;
+    recognition.onaudiostart = () => {
+      if (recognitionRef.current === recognition) setListening(true);
+    };
+    recognition.onaudioend = () => {
+      if (recognitionRef.current === recognition) setListening(false);
+    };
     const scheduleRestart = () => {
       if (!wantsListeningRef.current || recognitionRef.current !== recognition) return;
       if (restartAttemptsRef.current >= 5) {
@@ -278,6 +286,7 @@ function VoiceTypingPage() {
       }
     };
     recognition.onend = () => {
+      setListening(false);
       if (wantsListeningRef.current && recognitionRef.current === recognition) {
         commitInterim();
         scheduleRestart();
@@ -292,7 +301,6 @@ function VoiceTypingPage() {
     recognitionRef.current = recognition;
     try {
       recognition.start();
-      setListening(true);
       if (userId) saveVoiceTypingPreference(userId, true);
     } catch {
       wantsListeningRef.current = false;
