@@ -342,6 +342,7 @@ function PracticePage() {
     }
     recogRef.current = null;
     setListening(false);
+    setInterim("");
   }, []);
 
   const advanceWithTranscript = useCallback(
@@ -403,6 +404,7 @@ function PracticePage() {
         if (!wantListeningRef.current || recogRef.current !== rec) return;
         handledFinalResults.clear();
         previousInterimTokens = [];
+        setInterim("");
         try {
           rec.start();
         } catch {
@@ -461,6 +463,7 @@ function PracticePage() {
     };
     rec.onend = () => {
       setListening(false);
+      setInterim("");
       if (wantListeningRef.current && recogRef.current === rec) {
         scheduleRestart();
         return;
@@ -492,6 +495,7 @@ function PracticePage() {
     setSpokenCount(0);
     setFillerCount(0);
     setElapsed(0);
+    setInterim("");
     startTimeRef.current = null;
     setText(content);
     setControlsVisible(false);

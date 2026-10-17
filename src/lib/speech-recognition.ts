@@ -59,7 +59,8 @@ export function alignSpeechTokens(expected: string[], heard: string[], cursor: n
   const heardTokens = heard.filter(Boolean);
   if (heardTokens.length === 0 || cursor >= expected.length) return cursor;
 
-  const expectedWindow = expected.slice(cursor, cursor + heardTokens.length + 2);
+  const lookaheadLimit = Math.min(heardTokens.length + 2, 10);
+  const expectedWindow = expected.slice(cursor, cursor + lookaheadLimit);
   const skippedExpectedCost = 0.65;
   const extraHeardCost = 0.9;
   let previousRow = Array.from(
@@ -91,8 +92,8 @@ export function alignSpeechTokens(expected: string[], heard: string[], cursor: n
     }
   }
 
-  if (bestEnd === 0 || bestCost / heardTokens.length > 0.45) return cursor;
-  return cursor + bestEnd;
+  if (bestEnd <= 0 || bestCost / heardTokens.length > 0.45) return cursor;
+  return Math.max(cursor, cursor + bestEnd);
 }
 
 function speechTokenDistance(first: string, second: string): number {
