@@ -56,31 +56,67 @@ export function normalizeSpeechToken(token: string): string {
 }
 
 export function alignSpeechTokens(expected: string[], heard: string[], cursor: number): number {
-  let nextCursor = cursor;
-  for (let heardIndex = 0; heardIndex < heard.length; heardIndex += 1) {
-    const token = heard[heardIndex];
-    if (!token) continue;
-    while (nextCursor < expected.length && !expected[nextCursor]) nextCursor += 1;
-    if (expected[nextCursor] === token) {
-      nextCursor += 1;
-      continue;
+  const heardTokens = heard.filter(Boolean);
+  if (heardTokens.length === 0 || cursor >= expected.length) return cursor;
+
+  const expectedWindow = expected.slice(cursor, cursor + heardTokens.length + 2);
+  const skippedExpectedCost = 0.65;
+  const extraHeardCost = 0.9;
+  let previousRow = Array.from(
+    { length: expectedWindow.length + 1 },
+    (_, index) => index * skippedExpectedCost,
+  );
+
+  for (let heardIndex = 0; heardIndex < heardTokens.length; heardIndex += 1) {
+    const currentRow = [(heardIndex + 1) * extraHeardCost];
+    for (let expectedIndex = 0; expectedIndex < expectedWindow.length; expectedIndex += 1) {
+      const matchCost = speechTokenDistance(heardTokens[heardIndex], expectedWindow[expectedIndex]);
+      currentRow.push(
+        Math.min(
+          previousRow[expectedIndex] + matchCost,
+          currentRow[expectedIndex] + skippedExpectedCost,
+          previousRow[expectedIndex + 1] + extraHeardCost,
+        ),
+      );
     }
-    const confirmation = heard[heardIndex + 1];
-    for (let offset = 1; offset <= 2; offset += 1) {
-      const targetIndex = nextCursor + offset;
-      if (
-        expected[targetIndex] === token &&
-        confirmation &&
-        expected[targetIndex + 1] === confirmation
-      ) {
-        nextCursor = targetIndex + 2;
-        heardIndex += 1;
-        break;
-      }
+    previousRow = currentRow;
+  }
+
+  let bestEnd = 0;
+  let bestCost = previousRow[0];
+  for (let expectedIndex = 1; expectedIndex < previousRow.length; expectedIndex += 1) {
+    if (previousRow[expectedIndex] < bestCost) {
+      bestCost = previousRow[expectedIndex];
+      bestEnd = expectedIndex;
     }
   }
-  while (nextCursor < expected.length && !expected[nextCursor]) nextCursor += 1;
-  return nextCursor;
+
+  if (bestEnd === 0 || bestCost / heardTokens.length > 0.45) return cursor;
+  return cursor + bestEnd;
+}
+
+function speechTokenDistance(first: string, second: string): number {
+  if (first === second) return 0;
+  if (Math.min(first.length, second.length) < 4) return 1;
+
+  let previousRow = Array.from({ length: second.length + 1 }, (_, index) => index);
+  for (let firstIndex = 1; firstIndex <= first.length; firstIndex += 1) {
+    const currentRow = [firstIndex];
+    for (let secondIndex = 1; secondIndex <= second.length; secondIndex += 1) {
+      currentRow.push(
+        Math.min(
+          previousRow[secondIndex] + 1,
+          currentRow[secondIndex - 1] + 1,
+          previousRow[secondIndex - 1] +
+            (first[firstIndex - 1] === second[secondIndex - 1] ? 0 : 1),
+        ),
+      );
+    }
+    previousRow = currentRow;
+  }
+
+  const distance = previousRow[second.length];
+  return distance === 1 && distance / Math.max(first.length, second.length) <= 0.25 ? 0.25 : 1;
 }
 
 export function stableSpeechPrefix(previous: string[], current: string[]): string[] {

@@ -394,6 +394,7 @@ function PracticePage() {
         recognitionRestartRef.current = null;
         if (!wantListeningRef.current || recogRef.current !== rec) return;
         handledFinalResults.clear();
+        previousInterimTokens = [];
         try {
           rec.start();
         } catch {
@@ -407,12 +408,13 @@ function PracticePage() {
       recognitionRestartAttemptsRef.current = 0;
       setMicError(null);
       let interimText = "";
-      for (let i = e.resultIndex; i < e.results.length; i++) {
+      for (let i = 0; i < e.results.length; i++) {
         const r = e.results[i];
         if (!r) continue;
         if (r.isFinal) {
           if (handledFinalResults.has(i)) continue;
           handledFinalResults.add(i);
+          previousInterimTokens = [];
           const fillerMatches = r[0].transcript.match(/\b(?:um+|uh+)\b/gi);
           if (fillerMatches?.length) {
             setFillerCount((count) => count + fillerMatches.length);
