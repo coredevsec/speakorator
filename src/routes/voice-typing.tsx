@@ -5,6 +5,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { SiteNavbar } from "../components/site-navbar";
 import { supabase } from "../lib/supabase";
 import { checkSubscriptionAccess } from "../lib/subscription-access";
+import {
+  getSavedSpeechLanguage,
+  saveSpeechLanguage,
+  SPEECH_LANGUAGES,
+  type SpeechLanguage,
+} from "../lib/speech-recognition";
 
 const PRACTICE_TOOLS_KEY = "orator.practice-tools.";
 const SAVED_PRACTICES_KEY = "orator.saved-practices";
@@ -85,6 +91,7 @@ function VoiceTypingPage() {
   const [userId, setUserId] = useState("");
   const [checking, setChecking] = useState(true);
   const [supported, setSupported] = useState(false);
+  const [speechLanguage, setSpeechLanguage] = useState<SpeechLanguage>("en-US");
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [interimTranscript, setInterimTranscript] = useState("");
@@ -102,6 +109,7 @@ function VoiceTypingPage() {
 
   useEffect(() => {
     setSupported(getRecognitionConstructor() !== null);
+    setSpeechLanguage(getSavedSpeechLanguage());
   }, []);
 
   useEffect(() => {
@@ -177,7 +185,7 @@ function VoiceTypingPage() {
     restartAttemptsRef.current = 0;
     const recognition = new RecognitionConstructor();
     const handledFinalResults = new Set<number>();
-    recognition.lang = typeof navigator !== "undefined" ? navigator.language || "en-US" : "en-US";
+    recognition.lang = speechLanguage;
     recognition.continuous = true;
     recognition.interimResults = true;
     const scheduleRestart = () => {
@@ -292,7 +300,7 @@ function VoiceTypingPage() {
       setListening(false);
       setError("Could not start voice typing. Please try again.");
     }
-  }, [commitInterim, stopListening, userId]);
+  }, [commitInterim, speechLanguage, stopListening, userId]);
 
   useEffect(
     () => () => {
@@ -360,6 +368,26 @@ function VoiceTypingPage() {
         <p className="account-page-intro">
           Speak naturally. Your words will appear here as they are recognized.
         </p>
+        <label className="speech-language-control voice-typing-language">
+          <span>Speech recognition language</span>
+          <select
+            aria-label="Speech recognition language"
+            value={speechLanguage}
+            disabled={listening}
+            onChange={(event) => {
+              const language = event.target.value as SpeechLanguage;
+              setSpeechLanguage(language);
+              saveSpeechLanguage(language);
+            }}
+            className="bg-transparent text-foreground outline-none"
+          >
+            {SPEECH_LANGUAGES.map((language) => (
+              <option key={language.code} value={language.code}>
+                {language.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="sr-only" htmlFor="voice-transcript">
           Dictated text
         </label>

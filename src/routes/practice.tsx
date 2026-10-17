@@ -22,6 +22,14 @@ import { supabase } from "../lib/supabase";
 import { SiteNavbar } from "../components/site-navbar";
 import { checkSubscriptionAccess } from "../lib/subscription-access";
 import {
+  alignSpeechTokens,
+  getSavedSpeechLanguage,
+  normalizeSpeechToken,
+  saveSpeechLanguage,
+  SPEECH_LANGUAGES,
+  type SpeechLanguage,
+} from "../lib/speech-recognition";
+import {
   getPresentationPreferences,
   readableTextColor,
   type PresentationPreferences,
@@ -74,14 +82,6 @@ function getRecognitionCtor(): (new () => SpeechRecognitionLike) | null {
   const w = window as unknown as Record<string, unknown>;
   return (w["SpeechRecognition"] ?? w["webkitSpeechRecognition"] ?? null) as
     (new () => SpeechRecognitionLike) | null;
-}
-
-function normalize(word: string): string {
-  return word
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9']/g, "");
 }
 
 function splitWords(text: string): string[] {
@@ -142,7 +142,8 @@ function PracticePage() {
   const [phase, setPhase] = useState<Phase>("input");
   const [text, setText] = useState("");
   const [words, setWords] = useState<string[]>([]);
-  const normalized = useMemo(() => words.map(normalize), [words]);
+  const normalized = useMemo(() => words.map(normalizeSpeechToken), [words]);
+  const [speechLanguage, setSpeechLanguage] = useState<SpeechLanguage>("en-US");
 
   const [currentIdx, setCurrentIdx] = useState(0);
   const [spokenCount, setSpokenCount] = useState(0);
@@ -170,14 +171,8 @@ function PracticePage() {
     });
   }, [words]);
   const previewIdx = useMemo(() => {
-    let cursor = currentIdx;
-    for (const spoken of splitWords(interim).map(normalize).filter(Boolean)) {
-      const target = normalized[cursor];
-      if (target && (target === spoken || target.startsWith(spoken) || spoken.startsWith(target))) {
-        cursor += 1;
-      }
-    }
-    return cursor;
+    const heard = splitWords(interim).map(normalizeSpeechToken);
+    return alignSpeechTokens(normalized, heard, currentIdx);
   }, [currentIdx, interim, normalized]);
   const visibleIdx = Math.min(Math.max(currentIdx, previewIdx), normalized.length);
   const activeSentence = sentenceForWord[Math.min(visibleIdx, Math.max(words.length - 1, 0))] ?? 0;
@@ -308,6 +303,7 @@ function PracticePage() {
 
   useEffect(() => {
     setSupported(getRecognitionCtor() !== null);
+    setSpeechLanguage(getSavedSpeechLanguage());
   }, []);
 
   useEffect(() => {
@@ -347,16 +343,10 @@ function PracticePage() {
 
   const advanceWithTranscript = useCallback(
     (transcript: string) => {
-      const heard = splitWords(transcript).map(normalize).filter(Boolean);
+      const heard = splitWords(transcript).map(normalizeSpeechToken);
       if (heard.length === 0) return;
       const targetWords = normalizedWordsRef.current;
-      let cursor = cursorRef.current;
-      for (const h of heard) {
-        const matchedOffset = targetWords
-          .slice(cursor, Math.min(cursor + 5, targetWords.length))
-          .findIndex((target) => target === h || target.startsWith(h) || h.startsWith(target));
-        if (matchedOffset >= 0) cursor += matchedOffset + 1;
-      }
+      const cursor = alignSpeechTokens(targetWords, heard, cursorRef.current);
       if (cursor !== cursorRef.current) {
         if (!startTimeRef.current) startTimeRef.current = Date.now();
         cursorRef.current = cursor;
@@ -381,7 +371,7 @@ function PracticePage() {
     wantListeningRef.current = true;
     recognitionRestartAttemptsRef.current = 0;
     const rec = new Ctor();
-    rec.lang = typeof navigator !== "undefined" ? navigator.language || "en-US" : "en-US";
+    rec.lang = speechLanguage;
     rec.continuous = true;
     rec.interimResults = true;
     const handledFinalResults = new Set<number>();
@@ -477,7 +467,7 @@ function PracticePage() {
       setListening(false);
       setMicError("Could not start the microphone. Please try again.");
     }
-  }, [advanceWithTranscript]);
+  }, [advanceWithTranscript, speechLanguage]);
 
   useEffect(() => () => stopRecognition(), [stopRecognition]);
 
@@ -689,6 +679,25 @@ function PracticePage() {
               className="writing-input"
             />
             <div className="workspace-options-main">
+              <label className="speech-language-control">
+                <span className="sr-only">Speech recognition language</span>
+                <select
+                  aria-label="Speech recognition language"
+                  value={speechLanguage}
+                  onChange={(event) => {
+                    const language = event.target.value as SpeechLanguage;
+                    setSpeechLanguage(language);
+                    saveSpeechLanguage(language);
+                  }}
+                  className="bg-transparent text-foreground outline-none"
+                >
+                  {SPEECH_LANGUAGES.map((language) => (
+                    <option key={language.code} value={language.code}>
+                      {language.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <label className="sample-picker">
                 <select
                   aria-label="Choose a sample passage"
