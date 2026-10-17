@@ -35,6 +35,7 @@ import {
   readableTextColor,
   type PresentationPreferences,
 } from "../lib/presentation-preferences";
+import { useSelfHostedSpeech } from "../hooks/use-self-hosted-speech";
 
 export const Route = createFileRoute("/practice")({
   head: () => ({
@@ -181,6 +182,7 @@ function PracticePage() {
   const activeSentence = sentenceForWord[Math.min(visibleIdx, Math.max(words.length - 1, 0))] ?? 0;
 
   const recogRef = useRef<SpeechRecognitionLike | null>(null);
+  const stopSelfHostedRef = useRef<() => void>(() => {});
   const cursorRef = useRef(0);
   const normalizedWordsRef = useRef<string[]>([]);
   const startTimeRef = useRef<number | null>(null);
@@ -305,11 +307,6 @@ function PracticePage() {
   }, [currentUserId]);
 
   useEffect(() => {
-    setSupported(getRecognitionCtor() !== null);
-    setSpeechLanguage(getSavedSpeechLanguage());
-  }, []);
-
-  useEffect(() => {
     const draft = window.sessionStorage.getItem(PRACTICE_DRAFT_KEY);
     if (draft === null) return;
     setText(draft);
@@ -344,6 +341,7 @@ function PracticePage() {
     }
     setListening(false);
     setInterim("");
+    stopSelfHostedRef.current();
   }, []);
 
   const advanceWithTranscript = useCallback(
@@ -366,7 +364,40 @@ function PracticePage() {
     [stopRecognition],
   );
 
+  const selfHostedSpeech = useSelfHostedSpeech({
+    language: speechLanguage,
+    onTokens: (tokens) => advanceWithTranscript(tokens.join(" ")),
+  });
+  const {
+    configured: selfHostedConfigured,
+    status: selfHostedStatus,
+    error: selfHostedError,
+    start: startSelfHostedSpeech,
+    stop: stopSelfHostedSpeech,
+  } = selfHostedSpeech;
+  stopSelfHostedRef.current = stopSelfHostedSpeech;
+
+  useEffect(() => {
+    const canUseSelfHosted =
+      navigator.mediaDevices?.getUserMedia !== undefined &&
+      typeof AudioContext !== "undefined" &&
+      typeof AudioWorkletNode !== "undefined";
+    setSupported(selfHostedConfigured ? canUseSelfHosted : getRecognitionCtor() !== null);
+    setSpeechLanguage(getSavedSpeechLanguage());
+  }, [selfHostedConfigured]);
+
+  useEffect(() => {
+    if (selfHostedError) setMicError(selfHostedError);
+  }, [selfHostedError]);
+
   const startRecognition = useCallback(() => {
+    if (selfHostedConfigured) {
+      setMicError(null);
+      setListening(false);
+      wantListeningRef.current = true;
+      void startSelfHostedSpeech();
+      return;
+    }
     const Ctor = getRecognitionCtor();
     if (!Ctor) {
       setMicError("Speech recognition is not supported in this browser. Try Chrome or Edge.");
@@ -482,7 +513,7 @@ function PracticePage() {
       setListening(false);
       setMicError("Could not start the microphone. Please try again.");
     }
-  }, [advanceWithTranscript, speechLanguage]);
+  }, [advanceWithTranscript, selfHostedConfigured, startSelfHostedSpeech, speechLanguage]);
 
   useEffect(() => () => stopRecognition(), [stopRecognition]);
 
@@ -888,8 +919,9 @@ function PracticePage() {
             </div>
             {!supported && (
               <p className="mt-3 text-sm text-destructive">
-                Your browser doesn't support live speech recognition. For voice typing and word
-                tracking, use Chrome or Edge on desktop.
+                {selfHostedConfigured
+                  ? "This browser cannot capture audio for the configured self-hosted speech service."
+                  : "Your browser doesn't support live speech recognition. For voice typing and word tracking, use Chrome or Edge on desktop."}
               </p>
             )}
           </div>
@@ -958,7 +990,15 @@ function PracticePage() {
                 <div className="reading-tools">
                   {phase === "reading" ? (
                     <span className="reader-listening-state" role="status">
-                      {listening ? "Listening" : "Waiting for speech"}
+                      {selfHostedConfigured
+                        ? selfHostedStatus === "connecting"
+                          ? "Connecting to speech server"
+                          : selfHostedStatus === "listening"
+                            ? "Listening"
+                            : "Waiting for speech"
+                        : listening
+                          ? "Listening"
+                          : "Waiting for speech"}
                     </span>
                   ) : (
                     <span className="reader-complete">

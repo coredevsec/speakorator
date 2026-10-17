@@ -12,3 +12,5 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+For optional self-hosted speech recognition, see [SELF_HOSTED_SPEECH.md](SELF_HOSTED_SPEECH.md).
