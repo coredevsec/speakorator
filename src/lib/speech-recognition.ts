@@ -60,11 +60,8 @@ export function alignSpeechTokens(expected: string[], heard: string[], cursor: n
   for (const token of heard) {
     if (!token) continue;
     while (nextCursor < expected.length && !expected[nextCursor]) nextCursor += 1;
-    const searchEnd = Math.min(nextCursor + 4, expected.length);
-    for (let index = nextCursor; index < searchEnd; index += 1) {
-      if (expected[index] !== token) continue;
-      nextCursor = index + 1;
-      break;
+    if (expected[nextCursor] === token) {
+      nextCursor += 1;
     }
   }
   while (nextCursor < expected.length && !expected[nextCursor]) nextCursor += 1;
