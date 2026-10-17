@@ -474,7 +474,7 @@ function PracticePage() {
   const beginReading = (content: string) => {
     const w = splitWords(content);
     if (w.length < 2) return;
-    normalizedWordsRef.current = w.map(normalize);
+    normalizedWordsRef.current = w.map(normalizeSpeechToken);
     setWords(w);
     cursorRef.current = 0;
     setCurrentIdx(0);
@@ -698,7 +698,8 @@ function PracticePage() {
                   ))}
                 </select>
               </label>
-              <label className="sample-picker">
+              <label className="speech-language-control">
+                <span className="sr-only">Choose a sample passage</span>
                 <select
                   aria-label="Choose a sample passage"
                   value={selectedSample}

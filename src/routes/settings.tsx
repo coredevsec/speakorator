@@ -333,7 +333,7 @@ function SettingsPage() {
                   <p>Adjust the canvas and the word currently being read.</p>
                 </div>
                 <div className="appearance-color-row">
-                  <label>
+                  <label className="speech-language-control appearance-color-control">
                     <span>
                       Reading background <small>Canvas</small>
                     </span>
@@ -345,7 +345,7 @@ function SettingsPage() {
                       }
                     />
                   </label>
-                  <label>
+                  <label className="speech-language-control appearance-color-control">
                     <span>
                       Highlight color <small>Active word</small>
                     </span>
