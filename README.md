@@ -1,32 +1,119 @@
-# SpeakOrator - Read & Recite
+# Orator / SpeakOrator - Speak More Clearly. Feel More Ready.
 
-A reading coach that highlights each word as you speak it. Voice-typing + voice-following teleprompter.
+> Orator helps you read aloud, track your pace, and build confidence one word at a time.
 
-**Live:** https://speakorator.vercel.app | **Stack:** TypeScript 92%, Next.js, Web Speech API
+**Live:** https://speakorator.vercel.app
+**Repo:** https://github.com/coredevsec/speakorator
 
-### What it Does
-1. **Read Mode:** Paste script -> app follows your voice and highlights where you are (teleprompter that listens)
-2. **Voice Typing:** Speak and it types for you
+### What is Orator?
+A public speaking practice platform that listens to you read and follows along in real-time.
 
-> Never lose your place during speeches, YouTube scripts, sermons, or project defense.
+It's built for anyone who needs to speak with confidence - students defending projects, YouTubers reading scripts, pastors, founders pitching, and people improving their English.
 
-### Who It's For
-- Content creators reading from scripts
-- Students: project defense / presentations  
-- Pastors, MCs, Public speakers
-- Founders pitching
+### Core Features
 
-### How It Works
-- Web Speech API (real-time interim results)
-- Custom word-alignment logic with fuzzy matching
-- TypeScript + React + Vercel
+**1. Speaking Practice - Real-time Word Tracking**
+- Paste any article, speech, or passage
+- Or choose a sample: Public speaking, A morning walk, Learning something new, The power of listening, A brighter neighborhood
+- Click "Start reading" and read aloud
+- LIVE indicator follows your voice, highlights the current word as you speak
+- Designed to train pacing, filler words, and rhythm
 
-### Status
-🚧 Active Development: Improving voice-to-text alignment accuracy for long scripts. The indicator works, but getting word-perfect sync is hard - working on better timestamp matching.
+**2. Voice Typing (Dictation)**
+- Premium tool: Open a blank dictation page
+- Speak naturally - your words appear as they are recognized
+- Save dictation directly to Library
 
-### Local Dev
+**3. Your Library**
+- Keep passages close for your next session
+- Saves date, word count (e.g., 76 words), and full text
+- Delete / manage saved passages
+
+**4. Multi-Language & Accent Support**
+- English (US, UK, Australia, Canada, India)
+- Spanish (Spain, Mexico)
+- French, German, Portuguese (Brazil) and more
+- Perfect for accent training and ESL speakers
+
+**5. Premium Tools - Orator Plus**
+- **Save passage:** Keep it in your library for later (OFF/ON)
+- **Voice typing:** Blank dictation page
+- **Sentence focus:** ON - Show one sentence at a time for focused practice
+
+**6. Reading Colors & Customization**
+- Adjust reading background (Canvas)
+- Adjust highlight color (Active word)
+- Live preview - "Find your steady voice, one word at a time"
+- Save appearance - choices apply instantly to reading screen
+
+**7. User System**
+- Sign In / Sign Up
+- Menu: Practice, Voice typing, Library, Settings, Membership, Sign out
+
+### Premium - Orator Plus Membership
+
+Premium unlocks Save passage, Voice typing, Sentence focus and advanced coaching. Implemented with **Flutterwave** - currently in **Test Mode**.
+
+#### How to Test Premium (No Real Payment)
+
+Use any Flutterwave test card at the Membership checkout:
+
+**Recommended - Visa:**
+
+Card: 4242424242424242
+CVV: 812
+Expiry: 09/31
+PIN: 3310
+OTP: 12345
+
+
+**Mastercard:**
+
+Card: 5531886652142950
+CVV: 564
+Expiry: 09/32
+PIN: 3310
+OTP: 12345
+
+
+**Visa 3DS:**
+
+Card: 4187427415564246
+CVV: 828
+Expiry: 09/32
+PIN: 3310
+OTP: 12345
+
+
+Steps: Practice -> Membership / Orator Plus -> Enter test card -> Enter OTP `12345` -> Premium unlocked. No real charge.
+
+### Tech Stack
+- **TypeScript 92.2%**, CSS 2.8%, PLpgSQL 2.6%, Python 1.4%
+- Next.js / React
+- Web Speech API for real-time speech recognition
+- Supabase / Postgres for Library & Auth
+- Flutterwave Standard for payments (Test Mode)
+- Tailwind CSS
+- Hosted on Vercel (GitHub -> Vercel CI/CD)
+
+### Why This Project?
+- Free mic practice, anytime
+- Real-time word tracking
+- Clear pacing and filler feedback
+- Designed for public speaking practice
+
+Most teleprompters just scroll. Orator listens and grows your confidence.
+
+### Local Development
+
 ```bash
-git clone https://github.com/coredevsec/speakorator
+git clone https://github.com/coredevsec/speakorator.git
 cd speakorator
 npm i
 npm run dev
+
+---
+
+Built by https://github.com/coredevsec | CS Year 2, UoPeople | Lagos, NG (GMT+1) | Building in public
+
+Open to Paid Remote Internships: Product Engineer / AI Speech Engineer / Full-stack (TypeScript + AI + Payments)
