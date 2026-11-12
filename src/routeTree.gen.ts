@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as PracticeRouteImport } from './routes/practice'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as SavedPracticesRouteImport } from './routes/saved-practices'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VoiceTypingRouteImport } from './routes/voice-typing'
 import { Route as ApiFlutterwaveCheckoutRouteImport } from './routes/api/flutterwave-checkout'
 import { Route as ApiFlutterwaveWebhookRouteImport } from './routes/api/flutterwave-webhook'
@@ -33,6 +35,11 @@ const BillingRoute = BillingRouteImport.update({
 const PracticeRoute = PracticeRouteImport.update({
   id: '/practice',
   path: '/practice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SavedPracticesRoute = SavedPracticesRouteImport.update({
@@ -55,6 +62,11 @@ const SignUpRoute = SignUpRouteImport.update({
   path: '/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VoiceTypingRoute = VoiceTypingRouteImport.update({
   id: '/voice-typing',
   path: '/voice-typing',
@@ -75,10 +87,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
   '/practice': typeof PracticeRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/saved-practices': typeof SavedPracticesRoute
   '/settings': typeof SettingsRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/terms': typeof TermsRoute
   '/voice-typing': typeof VoiceTypingRoute
   '/api/flutterwave-checkout': typeof ApiFlutterwaveCheckoutRoute
   '/api/flutterwave-webhook': typeof ApiFlutterwaveWebhookRoute
@@ -87,10 +101,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
   '/practice': typeof PracticeRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/saved-practices': typeof SavedPracticesRoute
   '/settings': typeof SettingsRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/terms': typeof TermsRoute
   '/voice-typing': typeof VoiceTypingRoute
   '/api/flutterwave-checkout': typeof ApiFlutterwaveCheckoutRoute
   '/api/flutterwave-webhook': typeof ApiFlutterwaveWebhookRoute
@@ -100,10 +116,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
   '/practice': typeof PracticeRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/saved-practices': typeof SavedPracticesRoute
   '/settings': typeof SettingsRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/terms': typeof TermsRoute
   '/voice-typing': typeof VoiceTypingRoute
   '/api/flutterwave-checkout': typeof ApiFlutterwaveCheckoutRoute
   '/api/flutterwave-webhook': typeof ApiFlutterwaveWebhookRoute
@@ -114,10 +132,12 @@ export interface FileRouteTypes {
     | '/'
     | '/billing'
     | '/practice'
+    | '/privacy-policy'
     | '/saved-practices'
     | '/settings'
     | '/sign-in'
     | '/sign-up'
+    | '/terms'
     | '/voice-typing'
     | '/api/flutterwave-checkout'
     | '/api/flutterwave-webhook'
@@ -126,10 +146,12 @@ export interface FileRouteTypes {
     | '/'
     | '/billing'
     | '/practice'
+    | '/privacy-policy'
     | '/saved-practices'
     | '/settings'
     | '/sign-in'
     | '/sign-up'
+    | '/terms'
     | '/voice-typing'
     | '/api/flutterwave-checkout'
     | '/api/flutterwave-webhook'
@@ -138,10 +160,12 @@ export interface FileRouteTypes {
     | '/'
     | '/billing'
     | '/practice'
+    | '/privacy-policy'
     | '/saved-practices'
     | '/settings'
     | '/sign-in'
     | '/sign-up'
+    | '/terms'
     | '/voice-typing'
     | '/api/flutterwave-checkout'
     | '/api/flutterwave-webhook'
@@ -151,10 +175,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BillingRoute: typeof BillingRoute
   PracticeRoute: typeof PracticeRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   SavedPracticesRoute: typeof SavedPracticesRoute
   SettingsRoute: typeof SettingsRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
+  TermsRoute: typeof TermsRoute
   VoiceTypingRoute: typeof VoiceTypingRoute
   ApiFlutterwaveCheckoutRoute: typeof ApiFlutterwaveCheckoutRoute
   ApiFlutterwaveWebhookRoute: typeof ApiFlutterwaveWebhookRoute
@@ -181,6 +207,13 @@ declare module '@tanstack/react-router' {
       path: '/practice'
       fullPath: '/practice'
       preLoaderRoute: typeof PracticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/saved-practices': {
@@ -211,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/voice-typing': {
       id: '/voice-typing'
       path: '/voice-typing'
@@ -239,10 +279,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BillingRoute: BillingRoute,
   PracticeRoute: PracticeRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   SavedPracticesRoute: SavedPracticesRoute,
   SettingsRoute: SettingsRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
+  TermsRoute: TermsRoute,
   VoiceTypingRoute: VoiceTypingRoute,
   ApiFlutterwaveCheckoutRoute: ApiFlutterwaveCheckoutRoute,
   ApiFlutterwaveWebhookRoute: ApiFlutterwaveWebhookRoute,
