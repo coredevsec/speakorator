@@ -10,6 +10,7 @@ import {
 import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import legalCss from "../legal.css?url";
 import responsiveCss from "../responsive-overrides.css?url";
 
 function NotFoundComponent() {
@@ -99,6 +100,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: responsiveCss,
       },
+      {
+        rel: "stylesheet",
+        href: legalCss,
+      },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
@@ -135,6 +140,26 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <SiteFooter />
     </QueryClientProvider>
+  );
+}
+
+function SiteFooter() {
+  return (
+    <footer className="site-footer">
+      <div className="site-footer-inner">
+        <p className="site-footer-copy">
+          <span className="site-footer-copyright" aria-hidden="true">
+            ©
+          </span>{" "}
+          Corenator 2026
+        </p>
+        <nav className="site-footer-links" aria-label="Legal links">
+          <Link to="/privacy-policy">Privacy Policy</Link>
+          <Link to="/terms">Terms</Link>
+        </nav>
+      </div>
+    </footer>
   );
 }
