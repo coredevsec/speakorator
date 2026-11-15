@@ -27,17 +27,18 @@ export function getBrowserSpeechLanguage(): SpeechLanguage {
   );
 }
 
-export function getSavedSpeechLanguage(): SpeechLanguage {
-  if (typeof window === "undefined") return "en-US";
+export function getStoredSpeechLanguage(): SpeechLanguage | null {
+  if (typeof window === "undefined") return null;
   try {
     const savedLanguage = window.localStorage.getItem(SPEECH_LANGUAGE_STORAGE_KEY);
-    return (
-      SPEECH_LANGUAGES.find((language) => language.code === savedLanguage)?.code ??
-      getBrowserSpeechLanguage()
-    );
+    return SPEECH_LANGUAGES.find((language) => language.code === savedLanguage)?.code ?? null;
   } catch {
-    return getBrowserSpeechLanguage();
+    return null;
   }
+}
+
+export function getSavedSpeechLanguage(): SpeechLanguage {
+  return getStoredSpeechLanguage() ?? getBrowserSpeechLanguage();
 }
 
 export function saveSpeechLanguage(language: SpeechLanguage): void {

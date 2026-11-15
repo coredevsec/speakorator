@@ -22,7 +22,8 @@ import { SiteNavbar } from "../components/site-navbar";
 import { checkSubscriptionAccess } from "../lib/subscription-access";
 import {
   alignSpeechTokens,
-  getSavedSpeechLanguage,
+  getBrowserSpeechLanguage,
+  getStoredSpeechLanguage,
   normalizeSpeechToken,
   saveSpeechLanguage,
   SPEECH_LANGUAGES,
@@ -146,7 +147,7 @@ function PracticePage() {
   const [text, setText] = useState("");
   const [words, setWords] = useState<string[]>([]);
   const normalized = useMemo(() => words.map(normalizeSpeechToken), [words]);
-  const [speechLanguage, setSpeechLanguage] = useState<SpeechLanguage>("en-US");
+  const [speechLanguage, setSpeechLanguage] = useState<SpeechLanguage | "">("");
 
   const [currentIdx, setCurrentIdx] = useState(0);
   const [spokenCount, setSpokenCount] = useState(0);
@@ -363,8 +364,9 @@ function PracticePage() {
     [stopRecognition],
   );
 
+  const recognitionLanguage = speechLanguage || getBrowserSpeechLanguage();
   const selfHostedSpeech = useSelfHostedSpeech({
-    language: speechLanguage,
+    language: recognitionLanguage,
     onTokens: (tokens) => advanceWithTranscript(tokens.join(" ")),
   });
   const {
@@ -382,7 +384,8 @@ function PracticePage() {
       typeof AudioContext !== "undefined" &&
       typeof AudioWorkletNode !== "undefined";
     setSupported(selfHostedConfigured ? canUseSelfHosted : getRecognitionCtor() !== null);
-    setSpeechLanguage(getSavedSpeechLanguage());
+    const storedLanguage = getStoredSpeechLanguage();
+    if (storedLanguage) setSpeechLanguage(storedLanguage);
   }, [selfHostedConfigured]);
 
   useEffect(() => {
@@ -406,7 +409,7 @@ function PracticePage() {
     wantListeningRef.current = true;
     recognitionRestartAttemptsRef.current = 0;
     const rec = new Ctor();
-    rec.lang = speechLanguage;
+    rec.lang = recognitionLanguage;
     rec.continuous = true;
     rec.interimResults = true;
     rec.onaudiostart = () => {
@@ -731,12 +734,13 @@ function PracticePage() {
                   aria-label="Speech recognition language"
                   value={speechLanguage}
                   onChange={(event) => {
-                    const language = event.target.value as SpeechLanguage;
+                    const language = event.target.value as SpeechLanguage | "";
                     setSpeechLanguage(language);
-                    saveSpeechLanguage(language);
+                    if (language) saveSpeechLanguage(language);
                   }}
                   className="practice-select bg-transparent text-foreground outline-none"
                 >
+                  <option value="">Choose language</option>
                   {SPEECH_LANGUAGES.map((language) => (
                     <option key={language.code} value={language.code}>
                       {language.label}
