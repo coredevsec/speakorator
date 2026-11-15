@@ -11,7 +11,6 @@ import {
   Timer,
   Minus,
   Plus,
-  ArrowRight,
   ArrowLeft,
   LockKeyhole,
   Palette,
@@ -736,7 +735,7 @@ function PracticePage() {
                     setSpeechLanguage(language);
                     saveSpeechLanguage(language);
                   }}
-                  className="bg-transparent text-foreground outline-none"
+                  className="practice-select bg-transparent text-foreground outline-none"
                 >
                   {SPEECH_LANGUAGES.map((language) => (
                     <option key={language.code} value={language.code}>
@@ -757,7 +756,7 @@ function PracticePage() {
                       setText(sample.text);
                     }
                   }}
-                  className="bg-transparent text-foreground outline-none"
+                  className="practice-select bg-transparent text-foreground outline-none"
                 >
                   <option value="">Choose a sample</option>
                   {SAMPLE_TEXTS.map((sample) => (
@@ -817,7 +816,6 @@ function PracticePage() {
                       <strong>Save passages</strong>
                       <small>Keep passages ready for your next session</small>
                     </span>
-                    <ArrowRight className="premium-tool-arrow h-4 w-4" />
                   </button>
                 )}
                 {hasPaidAccess ? (
@@ -856,7 +854,6 @@ function PracticePage() {
                       Voice typing <small className="premium-feature-tag">PREMIUM</small>
                     </span>
                     <small>Dictate speech into your passage</small>
-                    <ArrowRight className="premium-tool-arrow h-4 w-4" />
                   </button>
                 )}
                 {hasPaidAccess ? (
@@ -894,7 +891,6 @@ function PracticePage() {
                       Sentence focus <small className="premium-feature-tag">PREMIUM</small>
                     </span>
                     <small>Focus on one complete thought at a time</small>
-                    <ArrowRight className="premium-tool-arrow h-4 w-4" />
                   </button>
                 )}
               </div>

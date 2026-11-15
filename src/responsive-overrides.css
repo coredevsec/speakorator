@@ -165,6 +165,12 @@
   color: #f3f7fc;
   font: inherit;
 }
+.speech-language-control select.practice-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 0.65rem;
+  background-image: none;
+}
 .speech-language-control select:focus-visible {
   outline: 2px solid #6ad8c5;
   outline-offset: 2px;
