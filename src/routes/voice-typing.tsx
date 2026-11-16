@@ -6,7 +6,8 @@ import { SiteNavbar } from "../components/site-navbar";
 import { supabase } from "../lib/supabase";
 import { checkSubscriptionAccess } from "../lib/subscription-access";
 import {
-  getSavedSpeechLanguage,
+  getBrowserSpeechLanguage,
+  getStoredSpeechLanguage,
   saveSpeechLanguage,
   SPEECH_LANGUAGES,
   type SpeechLanguage,
@@ -94,13 +95,14 @@ function VoiceTypingPage() {
   const [userId, setUserId] = useState("");
   const [checking, setChecking] = useState(true);
   const [supported, setSupported] = useState(false);
-  const [speechLanguage, setSpeechLanguage] = useState<SpeechLanguage>("en-US");
+  const [speechLanguage, setSpeechLanguage] = useState<SpeechLanguage | "">("");
   const [listening, setListening] = useState(false);
   const [starting, setStarting] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [interimTranscript, setInterimTranscript] = useState("");
   const [error, setError] = useState("");
   const [saveMessage, setSaveMessage] = useState("");
+  const recognitionLanguage = speechLanguage || getBrowserSpeechLanguage();
   const recognitionRef = useRef<Recognition | null>(null);
   const wantsListeningRef = useRef(false);
   const userIdRef = useRef("");
@@ -113,7 +115,8 @@ function VoiceTypingPage() {
 
   useEffect(() => {
     setSupported(getRecognitionConstructor() !== null);
-    setSpeechLanguage(getSavedSpeechLanguage());
+    const storedLanguage = getStoredSpeechLanguage();
+    if (storedLanguage) setSpeechLanguage(storedLanguage);
   }, []);
 
   useEffect(() => {
@@ -193,7 +196,7 @@ function VoiceTypingPage() {
     restartAttemptsRef.current = 0;
     const recognition = new RecognitionConstructor();
     const handledFinalResults = new Set<number>();
-    recognition.lang = speechLanguage;
+    recognition.lang = recognitionLanguage;
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.onaudiostart = () => {
@@ -325,7 +328,7 @@ function VoiceTypingPage() {
       setStarting(false);
       setError("Could not start voice typing. Please try again.");
     }
-  }, [commitInterim, speechLanguage, stopListening, userId]);
+  }, [commitInterim, recognitionLanguage, stopListening, userId]);
 
   useEffect(
     () => () => {
@@ -358,7 +361,8 @@ function VoiceTypingPage() {
       ) as SavedDictation[];
       if (
         saved.some(
-          (item) => item.text === content && (!item.language || item.language === speechLanguage),
+          (item) =>
+            item.text === content && (!item.language || item.language === recognitionLanguage),
         )
       ) {
         setSaveMessage("This dictation is already in your Library.");
@@ -369,7 +373,7 @@ function VoiceTypingPage() {
           id: crypto.randomUUID(),
           title: content.split(/[.!?]/)[0]?.slice(0, 48) || "Voice dictation",
           text: content,
-          language: speechLanguage,
+          language: recognitionLanguage,
           savedAt: new Date().toISOString(),
         },
         ...saved,
@@ -410,12 +414,13 @@ function VoiceTypingPage() {
             value={speechLanguage}
             disabled={isActive}
             onChange={(event) => {
-              const language = event.target.value as SpeechLanguage;
+              const language = event.target.value as SpeechLanguage | "";
               setSpeechLanguage(language);
-              saveSpeechLanguage(language);
+              if (language) saveSpeechLanguage(language);
             }}
-            className="bg-transparent text-foreground outline-none"
+            className="practice-select bg-transparent text-foreground outline-none"
           >
+            <option value="">Choose language</option>
             {SPEECH_LANGUAGES.map((language) => (
               <option key={language.code} value={language.code}>
                 {language.label}
