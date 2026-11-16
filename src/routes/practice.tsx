@@ -20,6 +20,7 @@ import {
 import { supabase } from "../lib/supabase";
 import { SiteNavbar } from "../components/site-navbar";
 import { checkSubscriptionAccess } from "../lib/subscription-access";
+import { getSamplePassages } from "../lib/sample-passages";
 import {
   alignSpeechTokens,
   getBrowserSpeechLanguage,
@@ -94,38 +95,17 @@ function splitWords(text: string): string[] {
 
 type Phase = "input" | "reading" | "done";
 
-const SAMPLE_TEXTS = [
-  {
-    title: "Public speaking",
-    text: "Good public speaking is not a gift reserved for a lucky few. It is a skill, built one sentence at a time. When you read aloud, you train your voice to carry meaning, your breath to steady your nerves, and your ears to hear your own rhythm. Start slowly. Let each word land. Pause where the punctuation asks you to pause. In time, the page stops being a script and becomes a conversation with your audience.",
-  },
-  {
-    title: "A morning walk",
-    text: "The city feels different before the day begins. Shop windows catch the first light, and quiet streets make room for small details. A warm cup of tea waits at home, but there is no need to hurry. For a few minutes, the morning belongs to everyone who is awake enough to notice it.",
-  },
-  {
-    title: "Learning something new",
-    text: "Learning takes patience. The first attempt may feel awkward, and the second may not be much better. Still, every small effort builds on the one before it. Ask questions, notice what has changed, and give yourself time to improve. Progress is often easier to see when you look back.",
-  },
-  {
-    title: "The power of listening",
-    text: "Good conversations begin with attention. Listening carefully shows respect, but it also helps us understand what someone means beyond the words they choose. Leave a little space before you respond. In that pause, a conversation can become more thoughtful, more honest, and more useful to everyone involved.",
-  },
-  {
-    title: "A brighter neighborhood",
-    text: "A welcoming neighborhood is built through everyday choices. Neighbors share tools, greet one another, and look out for people who may need a hand. These gestures are small, but they add up. When people feel seen and included, familiar streets begin to feel like a community.",
-  },
-];
-
 type SavedPractice = {
   id: string;
   title: string;
   text: string;
+  language?: SpeechLanguage;
   savedAt: string;
 };
 
 const SAVED_PRACTICES_KEY = "orator.saved-practices";
 const PRACTICE_DRAFT_KEY = "orator.practice-draft";
+const PRACTICE_DRAFT_LANGUAGE_KEY = "orator.practice-draft-language";
 const PRACTICE_TOOLS_KEY = "orator.practice-tools.";
 
 type PracticeToolPreferences = {
@@ -310,8 +290,13 @@ function PracticePage() {
     const draft = window.sessionStorage.getItem(PRACTICE_DRAFT_KEY);
     if (draft === null) return;
     setText(draft);
+    const draftLanguage = window.sessionStorage.getItem(PRACTICE_DRAFT_LANGUAGE_KEY);
+    if (draftLanguage && SPEECH_LANGUAGES.some((language) => language.code === draftLanguage)) {
+      setSpeechLanguage(draftLanguage as SpeechLanguage);
+    }
     setSelectedSample("");
     window.sessionStorage.removeItem(PRACTICE_DRAFT_KEY);
+    window.sessionStorage.removeItem(PRACTICE_DRAFT_LANGUAGE_KEY);
   }, []);
 
   useEffect(() => {
@@ -365,6 +350,7 @@ function PracticePage() {
   );
 
   const recognitionLanguage = speechLanguage || getBrowserSpeechLanguage();
+  const samplePassages = getSamplePassages(recognitionLanguage);
   const selfHostedSpeech = useSelfHostedSpeech({
     language: recognitionLanguage,
     onTokens: (tokens) => advanceWithTranscript(tokens.join(" ")),
@@ -627,7 +613,13 @@ function PracticePage() {
     const saved: SavedPractice[] = JSON.parse(
       window.localStorage.getItem(SAVED_PRACTICES_KEY) ?? "[]",
     );
-    if (saved.some((practice) => practice.text === content)) {
+    if (
+      saved.some(
+        (practice) =>
+          practice.text === content &&
+          (!practice.language || practice.language === recognitionLanguage),
+      )
+    ) {
       setSavedText(content);
       return;
     }
@@ -636,6 +628,7 @@ function PracticePage() {
         id: crypto.randomUUID(),
         title: content.split(/[.!?]/)[0]?.slice(0, 48) || "Untitled practice",
         text: content,
+        language: recognitionLanguage,
         savedAt: new Date().toISOString(),
       },
       ...saved,
@@ -737,6 +730,12 @@ function PracticePage() {
                     const language = event.target.value as SpeechLanguage | "";
                     setSpeechLanguage(language);
                     if (language) saveSpeechLanguage(language);
+                    if (selectedSample) {
+                      const localizedSample = getSamplePassages(
+                        language || getBrowserSpeechLanguage(),
+                      ).find((sample) => sample.id === selectedSample);
+                      if (localizedSample) setText(localizedSample.text);
+                    }
                   }}
                   className="practice-select bg-transparent text-foreground outline-none"
                 >
@@ -754,7 +753,7 @@ function PracticePage() {
                   aria-label="Choose a sample passage"
                   value={selectedSample}
                   onChange={(event) => {
-                    const sample = SAMPLE_TEXTS.find((item) => item.title === event.target.value);
+                    const sample = samplePassages.find((item) => item.id === event.target.value);
                     setSelectedSample(event.target.value);
                     if (sample) {
                       setText(sample.text);
@@ -763,8 +762,8 @@ function PracticePage() {
                   className="practice-select bg-transparent text-foreground outline-none"
                 >
                   <option value="">Choose a sample</option>
-                  {SAMPLE_TEXTS.map((sample) => (
-                    <option key={sample.title} value={sample.title}>
+                  {samplePassages.map((sample) => (
+                    <option key={sample.id} value={sample.id}>
                       {sample.title}
                     </option>
                   ))}

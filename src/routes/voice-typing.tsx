@@ -19,6 +19,7 @@ type SavedDictation = {
   id: string;
   title: string;
   text: string;
+  language?: SpeechLanguage;
   savedAt: string;
 };
 
@@ -355,7 +356,11 @@ function VoiceTypingPage() {
       const saved = JSON.parse(
         window.localStorage.getItem(SAVED_PRACTICES_KEY) ?? "[]",
       ) as SavedDictation[];
-      if (saved.some((item) => item.text === content)) {
+      if (
+        saved.some(
+          (item) => item.text === content && (!item.language || item.language === speechLanguage),
+        )
+      ) {
         setSaveMessage("This dictation is already in your Library.");
         return;
       }
@@ -364,6 +369,7 @@ function VoiceTypingPage() {
           id: crypto.randomUUID(),
           title: content.split(/[.!?]/)[0]?.slice(0, 48) || "Voice dictation",
           text: content,
+          language: speechLanguage,
           savedAt: new Date().toISOString(),
         },
         ...saved,

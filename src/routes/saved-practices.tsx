@@ -14,14 +14,17 @@ import {
 } from "../components/ui/alert-dialog";
 import { supabase } from "../lib/supabase";
 import { checkSubscriptionAccess } from "../lib/subscription-access";
+import { SPEECH_LANGUAGES, type SpeechLanguage } from "../lib/speech-recognition";
 
 const SAVED_PRACTICES_KEY = "orator.saved-practices";
 const PRACTICE_DRAFT_KEY = "orator.practice-draft";
+const PRACTICE_DRAFT_LANGUAGE_KEY = "orator.practice-draft-language";
 
 type SavedPractice = {
   id: string;
   title: string;
   text: string;
+  language?: SpeechLanguage;
   savedAt: string;
 };
 
@@ -83,6 +86,11 @@ function SavedPracticesPage() {
 
   function practiceSavedText(practice: SavedPractice) {
     window.sessionStorage.setItem(PRACTICE_DRAFT_KEY, practice.text);
+    if (practice.language) {
+      window.sessionStorage.setItem(PRACTICE_DRAFT_LANGUAGE_KEY, practice.language);
+    } else {
+      window.sessionStorage.removeItem(PRACTICE_DRAFT_LANGUAGE_KEY);
+    }
     void navigate({ to: "/practice" });
   }
 
@@ -151,6 +159,12 @@ function SavedPracticesPage() {
                   <span className="mt-3 inline-flex rounded-full border border-teal-200/20 bg-teal-200/10 px-2.5 py-1 text-xs font-semibold text-teal-100">
                     {countWords(practice.text)} words
                   </span>
+                  {practice.language && (
+                    <span className="ml-2 inline-flex rounded-full border border-slate-200/15 bg-slate-200/5 px-2.5 py-1 text-xs font-semibold text-slate-200">
+                      {SPEECH_LANGUAGES.find((language) => language.code === practice.language)
+                        ?.label ?? practice.language}
+                    </span>
+                  )}
                 </button>
                 <button
                   type="button"
