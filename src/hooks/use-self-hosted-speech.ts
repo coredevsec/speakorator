@@ -14,6 +14,29 @@ type SpeechMessage = {
 
 const speechSocketUrl = import.meta.env["VITE_SPEECH_WS_URL"]?.trim() ?? "";
 
+function getSpeechSocketConfigurationError(): string | null {
+  let url: URL;
+  try {
+    url = new URL(speechSocketUrl);
+  } catch {
+    return "The self-hosted speech URL is invalid.";
+  }
+
+  const isLoopback = (hostname: string) =>
+    hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
+
+  if (isLoopback(url.hostname) && !isLoopback(window.location.hostname)) {
+    return "The speech URL points to localhost, which is not reachable from this device. Configure a reachable speech server URL.";
+  }
+  if (window.location.protocol === "https:" && url.protocol !== "wss:") {
+    return "The speech URL must use wss:// when the app is opened over HTTPS.";
+  }
+  if (url.protocol !== "ws:" && url.protocol !== "wss:") {
+    return "The speech URL must use ws:// or wss://.";
+  }
+  return null;
+}
+
 export function useSelfHostedSpeech({ language, onTokens }: SelfHostedSpeechOptions) {
   const [status, setStatus] = useState<SelfHostedSpeechStatus>("idle");
   const [error, setError] = useState("");
@@ -65,6 +88,12 @@ export function useSelfHostedSpeech({ language, onTokens }: SelfHostedSpeechOpti
     if (activeRef.current) return;
     if (!speechSocketUrl) {
       setError("Self-hosted speech is not configured. Set VITE_SPEECH_WS_URL and reload.");
+      setStatus("error");
+      return;
+    }
+    const configurationError = getSpeechSocketConfigurationError();
+    if (configurationError) {
+      setError(configurationError);
       setStatus("error");
       return;
     }
