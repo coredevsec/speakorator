@@ -90,6 +90,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://orator.corenator.com/" },
+      { property: "og:image", content: "https://orator.corenator.com/og-image.png" },
+      { name: "robots", content: "index, follow" },
     ],
     links: [
       {
