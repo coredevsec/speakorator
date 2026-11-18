@@ -3,11 +3,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "Terms of Service | Corenator" },
+      { title: "Terms of Service | Orator" },
       {
         name: "description",
         content:
-          "Review the Corenator terms of service, including usage rules, subscriptions, and responsibilities.",
+          "Review the Orator terms of service, including usage rules, subscriptions, and responsibilities.",
       },
     ],
   }),
@@ -25,13 +25,13 @@ function TermsPage() {
         <article className="legal-card">
           <h1>Terms of Service</h1>
           <p>
-            These Terms of Service govern your access to and use of Corenator and any related
+            These Terms of Service govern your access to and use of Orator and any related
             products and services.
           </p>
 
           <h2>1. Acceptance of Terms</h2>
           <p>
-            By creating an account or using Corenator, you agree to these Terms and any policies
+            By creating an account or using Orator, you agree to these Terms and any policies
             referenced herein.
           </p>
 
@@ -62,7 +62,7 @@ function TermsPage() {
 
           <h2>6. Intellectual Property</h2>
           <p>
-            Corenator retains ownership of the platform, branding, and related materials. You retain
+            Orator retains ownership of the platform, branding, and related materials. You retain
             ownership of content you create or upload, but you grant us the rights needed to operate
             the service.
           </p>
@@ -75,7 +75,7 @@ function TermsPage() {
 
           <h2>8. Limitation of Liability</h2>
           <p>
-            Corenator is provided on an “as is” basis. We are not liable for indirect, incidental,
+            Orator is provided on an “as is” basis. We are not liable for indirect, incidental,
             special, or consequential damages arising from your use of the service.
           </p>
 

@@ -3,11 +3,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/privacy-policy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy | Corenator" },
+      { title: "Privacy Policy | Orator" },
       {
         name: "description",
         content:
-          "Read the Corenator privacy policy to understand how we collect, use, and protect your personal data.",
+          "Read the Orator privacy policy to understand how we collect, use, and protect your personal data.",
       },
     ],
   }),
@@ -25,7 +25,7 @@ function PrivacyPolicyPage() {
         <article className="legal-card">
           <h1>Privacy Policy</h1>
           <p>
-            This Privacy Policy explains how Corenator collects, uses, and protects your
+            This Privacy Policy explains how Orator collects, uses, and protects your
             information when you use our website and services.
           </p>
 
