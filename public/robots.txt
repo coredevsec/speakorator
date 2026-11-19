@@ -13,4 +13,11 @@ Allow: /
 User-agent: *
 Allow: /
 
+Disallow: /signin
+Disallow: /signup
+Disallow: /login
+Disallow: /practice
+Disallow: /dashboard
+Disallow: /app
+
 Sitemap: https://orator.corenator.com/sitemap.xml
