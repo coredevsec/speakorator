@@ -137,20 +137,6 @@ function LandingPage() {
             Start free and build confidence one session at a time.
           </p>
 
-          <ul className="landing-proof-list hero-checklist-animate">
-            <li className="landing-start-note">
-              <CheckCircle2 className="h-4 w-4" /> Free mic practice, anytime
-            </li>
-            <li>
-              <CheckCircle2 className="h-4 w-4" /> Real-time word tracking
-            </li>
-            <li>
-              <CheckCircle2 className="h-4 w-4" /> Clear pacing and filler feedback
-            </li>
-            <li>
-              <CheckCircle2 className="h-4 w-4" /> Designed for public speaking practice
-            </li>
-          </ul>
         </div>
       </section>
 
@@ -277,19 +263,17 @@ function LandingPage() {
         </div>
       </div>
 
+      <ul className="orator-practice-benefits" aria-label="Speaking practice benefits">
+        <li>Free mic practice, anytime</li>
+        <li>Real-time word tracking</li>
+        <li>Clear pacing and filler feedback</li>
+        <li>Designed for public speaking practice</li>
+      </ul>
+
       <article className="landing-feature-card orator-language-feature-card">
         <p className="practice-kicker orator-language-feature-label">MULTIPLE LANGUAGES</p>
         <div className="orator-3d-globe" aria-label="Animated globe showing Orator language support">
-          <div className="orator-3d-globe-sphere">
-            <span className="orator-globe-land orator-globe-land-one" />
-            <span className="orator-globe-land orator-globe-land-two" />
-            <span className="orator-globe-land orator-globe-land-three" />
-            <span className="orator-globe-continent orator-globe-continent-one" />
-            <span className="orator-globe-continent orator-globe-continent-two" />
-            <span className="orator-globe-continent orator-globe-continent-three" />
-            <span className="orator-globe-cloud orator-globe-cloud-one" />
-            <span className="orator-globe-cloud orator-globe-cloud-two" />
-          </div>
+          <img className="orator-earth-texture" src="/earth-globe.svg" alt="" />
           <span className="orator-globe-shadow" />
         </div>
         <div className="orator-language-feature-copy">

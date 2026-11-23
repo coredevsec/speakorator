@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" role="img" aria-labelledby="title desc">
+  <title id="title">Earth globe</title>
+  <desc id="desc">A rotating blue Earth with green continents, ocean currents, clouds, and shaded atmospheric edges.</desc>
+  <defs>
+    <radialGradient id="ocean" cx="34%" cy="28%" r="76%">
+      <stop offset="0" stop-color="#75d9e8"/>
+      <stop offset=".28" stop-color="#278fba"/>
+      <stop offset=".67" stop-color="#12618e"/>
+      <stop offset="1" stop-color="#082a50"/>
+    </radialGradient>
+    <linearGradient id="land" x1="0" y1="0" x2=".8" y2="1">
+      <stop offset="0" stop-color="#b1dc72"/>
+      <stop offset=".42" stop-color="#65b84f"/>
+      <stop offset="1" stop-color="#287a42"/>
+    </linearGradient>
+    <linearGradient id="highland" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d4d59a"/>
+      <stop offset=".5" stop-color="#8d9f63"/>
+      <stop offset="1" stop-color="#447848"/>
+    </linearGradient>
+    <radialGradient id="shade" cx="36%" cy="30%" r="72%">
+      <stop offset=".58" stop-color="#001c36" stop-opacity="0"/>
+      <stop offset=".85" stop-color="#031a32" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#010d20" stop-opacity=".9"/>
+    </radialGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+    <filter id="terrain">
+      <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="12"/>
+      <feColorMatrix values=".25 0 0 0 .28 .1 .45 0 0 .46 0 0 .18 0 .18 0 0 0 .2 0"/>
+      <feBlend in="SourceGraphic" mode="soft-light"/>
+    </filter>
+    <clipPath id="globeClip"><circle cx="250" cy="250" r="205"/></clipPath>
+  </defs>
+  <circle cx="250" cy="250" r="218" fill="#4cc9ee" opacity=".15" filter="url(#glow)"/>
+  <g clip-path="url(#globeClip)">
+    <circle cx="250" cy="250" r="205" fill="url(#ocean)"/>
+    <g fill="none" stroke="#83d9ed" stroke-opacity=".2" stroke-width="2">
+      <path d="M52 220c65-33 113-23 169 4s111 34 211-4"/>
+      <path d="M45 283c74-27 122-17 177 9s105 24 233-13"/>
+      <path d="M110 100c54 54 62 107 35 159s-22 98 18 153"/>
+      <path d="M339 61c-48 53-61 106-39 155s19 100-21 183"/>
+    </g>
+    <g fill="url(#land)" stroke="#c5e890" stroke-opacity=".32" stroke-width="2" filter="url(#terrain)">
+      <path d="M74 116 96 92l28 8 15-17 33 8 17 20 33 4 12 20-18 20 9 22-20 15-8 26-21 8-7 25-18 18-21-9-11 13-16-14-6-28-18-8-7-25 16-19-13-19 12-22-20-17Z"/>
+      <path d="m155 261 23 7 11 22 17 10-4 28 16 24-7 29-19 36-14 40-16 7-14-28 4-24-15-28 8-26-13-22 7-29-8-22Z"/>
+      <path d="m247 95 26-18 38 3 19 14 31-4 28 14 24 27 33 13 14 22-15 18-30-6-13 18-29 1-15 22-26-7-14 18-23-14-18 11-22-17-23 4-14-22 13-25-10-19 18-20-14-20Z"/>
+      <path d="m261 229 22 9 17 23-5 25 16 26-8 31-17 25-17 34-22-12-10-33-16-18 7-26-11-28 12-25-7-25 18-6Z"/>
+      <path d="m376 333 26-14 36 7 21 20-13 20-33 8-28-11-17-17Z"/>
+      <path d="m222 72 9-17 13 10-3 19-11 8Z"/>
+    </g>
+    <g fill="url(#highland)" opacity=".72">
+      <path d="m99 118 18-12 15 9-5 20-17 8-14-10Z"/>
+      <path d="m284 116 28-8 20 11-8 17-28 3-17-10Z"/>
+      <path d="m180 312 9 12-7 26-8 8-5-26Z"/>
+      <path d="m268 280 13-9 10 18-8 25-11-7Z"/>
+      <path d="m393 344 20-5 12 10-18 8Z"/>
+    </g>
+    <g fill="#f2fbff" opacity=".68">
+      <path d="M68 187c19-20 37-17 51-6 15-11 34-5 39 8 22-3 31 10 27 21H75c-14-4-17-14-7-23Z"/>
+      <path d="M286 194c18-17 40-15 53-2 17-10 34-1 35 12 18-2 29 9 23 20H292c-15-6-17-20-6-30Z"/>
+      <path d="M197 337c16-16 32-13 43-3 13-9 28-1 29 10 14-1 23 9 18 17h-84c-13-5-15-16-6-24Z"/>
+    </g>
+    <circle cx="250" cy="250" r="205" fill="url(#shade)"/>
+    <path d="M92 137c29-42 76-71 127-81" fill="none" stroke="#e9ffff" stroke-opacity=".42" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <circle cx="250" cy="250" r="205" fill="none" stroke="#a8efff" stroke-opacity=".72" stroke-width="2"/>
+</svg>
