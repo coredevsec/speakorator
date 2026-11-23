@@ -233,7 +233,7 @@ function SiteFooter() {
               <Facebook className="h-5 w-5" />
             </a>
             <a
-              href="https://www.linkedin.com/company/orator-ai/"
+              href="https://www.linkedin.com/company/orator-teleprompter"
               target="_blank"
               rel="noreferrer"
               aria-label="LinkedIn"

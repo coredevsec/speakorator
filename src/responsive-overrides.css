@@ -673,6 +673,17 @@
     white-space: nowrap;
     font-size: 0.78rem;
   }
+  .landing-proof-list li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    white-space: nowrap;
+  }
+  .landing-proof-list li svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+  }
 }
 .landing-faq-grid {
   grid-template-columns: minmax(0, 1fr);
