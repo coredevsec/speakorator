@@ -661,23 +661,22 @@
 }
 @media (max-width: 640px) {
   .landing-proof-list {
-    grid-template-columns: minmax(0, max-content);
-    align-items: center;
+    width: min(100%, 24rem);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
     justify-content: center;
-    justify-items: start;
-    gap: 0.55rem;
+    justify-items: stretch;
+    gap: 0.65rem 0.75rem;
   }
   .landing-proof-list li {
-    width: max-content;
-    max-width: 100%;
-    white-space: nowrap;
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    align-items: flex-start;
+    gap: 0.4rem;
+    white-space: normal;
     font-size: 0.78rem;
-  }
-  .landing-proof-list li {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    white-space: nowrap;
+    line-height: 1.35;
   }
   .landing-proof-list li svg {
     width: 16px;
