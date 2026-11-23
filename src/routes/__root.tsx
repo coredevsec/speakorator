@@ -8,6 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { Facebook, Instagram, Linkedin } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import legalCss from "../legal.css?url";
@@ -154,16 +155,93 @@ function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
-        <p className="site-footer-copy">
-          <span className="site-footer-copyright" aria-hidden="true">
-            ©
-          </span>{" "}
-          Corenator 2026
-        </p>
-        <nav className="site-footer-links" aria-label="Legal links">
-          <Link to="/privacy-policy">Privacy Policy</Link>
-          <Link to="/terms">Terms</Link>
-        </nav>
+        <div className="site-footer-main">
+          <div className="site-footer-brand">
+            <Link to="/" className="site-footer-brand-link">
+              <span className="brand-mark-frame">
+                <img src="/orator-mark.svg" alt="" className="brand-mark-image" />
+              </span>
+              <span>Orator</span>
+            </Link>
+            <p>The most natural way to practice speaking.</p>
+          </div>
+
+          <nav className="site-footer-columns" aria-label="Footer navigation">
+            <div>
+              <strong>Products</strong>
+              <Link to="/practice">Practice Session</Link>
+              <Link to="/saved-practices">Library</Link>
+              <Link to="/voice-typing">Voice Typing</Link>
+            </div>
+            <div>
+              <strong>Company</strong>
+              <Link to="/about">About</Link>
+              <a href="#">Blog</a>
+              <Link to="/pricing">Pricing</Link>
+            </div>
+            <div>
+              <strong>Help</strong>
+              <a href="mailto:support@corenator.com">Support</a>
+              <Link to="/faqs">Help Center</Link>
+              <a href="#">Status</a>
+            </div>
+            <div>
+              <strong>Legal</strong>
+              <Link to="/terms">Terms of Use</Link>
+              <Link to="/privacy-policy">Privacy Policy</Link>
+            </div>
+          </nav>
+        </div>
+
+        <div className="site-footer-bottom">
+          <p className="site-footer-copy">
+            <span className="site-footer-copyright" aria-hidden="true">©</span>{" "}
+            Orator 2026
+          </p>
+          <nav className="site-footer-links site-footer-socials" aria-label="Social media links">
+            <a
+              href="https://www.instagram.com/"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Instagram"
+            >
+              <Instagram className="h-5 w-5" />
+            </a>
+            <a
+              href="https://x.com/"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="X"
+            >
+              <svg
+                className="site-footer-social-icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231L18.244 2.25Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </a>
+            <a
+              href="https://www.facebook.com/"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Facebook"
+            >
+              <Facebook className="h-5 w-5" />
+            </a>
+            <a
+              href="https://www.linkedin.com/"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="LinkedIn"
+            >
+              <Linkedin className="h-5 w-5" />
+            </a>
+          </nav>
+        </div>
       </div>
     </footer>
   );

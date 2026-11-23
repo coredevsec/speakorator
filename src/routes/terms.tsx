@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { SiteNavbar } from "../components/site-navbar";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -17,6 +18,17 @@ export const Route = createFileRoute("/terms")({
 function TermsPage() {
   return (
     <main className="legal-page">
+      <SiteNavbar brandText="Orator" brandTo="/" showMenu={false} landingMenu>
+        <nav className="landing-nav" aria-label="Account actions">
+          <Link
+            to="/sign-up"
+            className="landing-nav-cta orator-get-started"
+            style={{ color: "#0a1a27" }}
+          >
+            Get Started
+          </Link>
+        </nav>
+      </SiteNavbar>
       <div className="legal-shell">
         <Link to="/" className="legal-back">
           ← Back to home

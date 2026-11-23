@@ -10,8 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as BillingRouteImport } from './routes/billing'
+import { Route as FaqsRouteImport } from './routes/faqs'
 import { Route as PracticeRouteImport } from './routes/practice'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as SavedPracticesRouteImport } from './routes/saved-practices'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -27,14 +30,29 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BillingRoute = BillingRouteImport.update({
   id: '/billing',
   path: '/billing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FaqsRoute = FaqsRouteImport.update({
+  id: '/faqs',
+  path: '/faqs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PracticeRoute = PracticeRouteImport.update({
   id: '/practice',
   path: '/practice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
@@ -85,8 +103,11 @@ const ApiFlutterwaveWebhookRoute = ApiFlutterwaveWebhookRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/billing': typeof BillingRoute
+  '/faqs': typeof FaqsRoute
   '/practice': typeof PracticeRoute
+  '/pricing': typeof PricingRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/saved-practices': typeof SavedPracticesRoute
   '/settings': typeof SettingsRoute
@@ -99,8 +120,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/billing': typeof BillingRoute
+  '/faqs': typeof FaqsRoute
   '/practice': typeof PracticeRoute
+  '/pricing': typeof PricingRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/saved-practices': typeof SavedPracticesRoute
   '/settings': typeof SettingsRoute
@@ -114,8 +138,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/billing': typeof BillingRoute
+  '/faqs': typeof FaqsRoute
   '/practice': typeof PracticeRoute
+  '/pricing': typeof PricingRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/saved-practices': typeof SavedPracticesRoute
   '/settings': typeof SettingsRoute
@@ -130,8 +157,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/billing'
+    | '/faqs'
     | '/practice'
+    | '/pricing'
     | '/privacy-policy'
     | '/saved-practices'
     | '/settings'
@@ -144,8 +174,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/billing'
+    | '/faqs'
     | '/practice'
+    | '/pricing'
     | '/privacy-policy'
     | '/saved-practices'
     | '/settings'
@@ -158,8 +191,11 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/billing'
+    | '/faqs'
     | '/practice'
+    | '/pricing'
     | '/privacy-policy'
     | '/saved-practices'
     | '/settings'
@@ -173,8 +209,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   BillingRoute: typeof BillingRoute
+  FaqsRoute: typeof FaqsRoute
   PracticeRoute: typeof PracticeRoute
+  PricingRoute: typeof PricingRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   SavedPracticesRoute: typeof SavedPracticesRoute
   SettingsRoute: typeof SettingsRoute
@@ -195,6 +234,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/billing': {
       id: '/billing'
       path: '/billing'
@@ -202,11 +248,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BillingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/faqs': {
+      id: '/faqs'
+      path: '/faqs'
+      fullPath: '/faqs'
+      preLoaderRoute: typeof FaqsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/practice': {
       id: '/practice'
       path: '/practice'
       fullPath: '/practice'
       preLoaderRoute: typeof PracticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy-policy': {
@@ -277,8 +337,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   BillingRoute: BillingRoute,
+  FaqsRoute: FaqsRoute,
   PracticeRoute: PracticeRoute,
+  PricingRoute: PricingRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   SavedPracticesRoute: SavedPracticesRoute,
   SettingsRoute: SettingsRoute,

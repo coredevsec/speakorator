@@ -6,15 +6,17 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 
 export function SiteNavbar({
-  brandText = "rator",
+  brandText = "Orator",
   brandTo = "/",
   showMenu = true,
   children,
+  landingMenu = false,
 }: {
   brandText?: string;
   brandTo?: "/" | "/practice";
   showMenu?: boolean;
   children?: ReactNode;
+  landingMenu?: boolean;
 }) {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -63,8 +65,53 @@ export function SiteNavbar({
         <span>{brandText}</span>
       </Link>
       <div className="site-navbar-actions">
-        {children}
-        {showMenu && (
+        {landingMenu ? (
+          <>
+            <nav className="landing-navbar-desktop" aria-label="Landing navigation">
+              <Link to="/about">About</Link>
+              <Link to="/pricing">Pricing</Link>
+              <a href="#">Blog</a>
+              <Link to="/sign-up" className="landing-nav-cta orator-get-started" style={{ color: "#0a1a27" }}>
+                Get Started
+              </Link>
+            </nav>
+            <div className="landing-navbar-mobile" ref={menuRef}>
+              <button
+                type="button"
+                className="account-menu-trigger"
+                aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen((open) => !open)}
+              >
+                {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+              {menuOpen && (
+                <nav className="account-menu" aria-label="Landing navigation">
+                  <Link to="/about" onClick={() => setMenuOpen(false)}>
+                    About
+                  </Link>
+                  <Link to="/pricing" onClick={() => setMenuOpen(false)}>
+                    Pricing
+                  </Link>
+                  <a href="#" onClick={() => setMenuOpen(false)}>
+                    Blog
+                  </a>
+                  <Link
+                    to="/sign-up"
+                    className="landing-nav-cta orator-get-started"
+                    style={{ color: "#0a1a27" }}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Get Started
+                  </Link>
+                </nav>
+              )}
+            </div>
+          </>
+        ) : (
+          children
+        )}
+        {!landingMenu && showMenu && (
           <div className="account-menu-wrap" ref={menuRef}>
             <button
               type="button"
