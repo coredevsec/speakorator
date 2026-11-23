@@ -163,7 +163,7 @@ function SiteFooter() {
               </span>
               <span>Orator</span>
             </Link>
-            <p>The most natural way to practice speaking.</p>
+            <p>AI public speaking practice, made natural.</p>
           </div>
 
           <nav className="site-footer-columns" aria-label="Footer navigation">
@@ -200,7 +200,7 @@ function SiteFooter() {
           </p>
           <nav className="site-footer-links site-footer-socials" aria-label="Social media links">
             <a
-              href="https://www.instagram.com/"
+              href="https://www.instagram.com/orator.teleprompter?lqvp=aXBpZWZwZ2k4M2lt&utm_source=qr"
               target="_blank"
               rel="noreferrer"
               aria-label="Instagram"
@@ -208,7 +208,7 @@ function SiteFooter() {
               <Instagram className="h-5 w-5" />
             </a>
             <a
-              href="https://x.com/"
+              href="https://x.com/oratortelepromp?s=11"
               target="_blank"
               rel="noreferrer"
               aria-label="X"
@@ -225,7 +225,7 @@ function SiteFooter() {
               </svg>
             </a>
             <a
-              href="https://www.facebook.com/"
+              href="https://www.facebook.com/orator.ai/"
               target="_blank"
               rel="noreferrer"
               aria-label="Facebook"
@@ -233,7 +233,7 @@ function SiteFooter() {
               <Facebook className="h-5 w-5" />
             </a>
             <a
-              href="https://www.linkedin.com/"
+              href="https://www.linkedin.com/company/orator-ai/"
               target="_blank"
               rel="noreferrer"
               aria-label="LinkedIn"

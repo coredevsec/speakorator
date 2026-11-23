@@ -129,13 +129,12 @@ function LandingPage() {
           <span className="practice-kicker">SPEAKING CONFIDENCE</span>
           <h1 className="hero-headline-animate">Speak more clearly. Feel more ready.</h1>
           <p className="hero-subtext-animate">
-            Orator is a public speaking practice app and smart teleprompter for speakers, students,
-            creators, pastors and founders. Paste any script and read out loud while Orator follows
-            your voice word-by-word.
+            Orator is an AI public speaking app and voice-following teleprompter. Practice your
+            speech and get real-time feedback on pace, clarity, filler words, and pauses.
           </p>
           <p className="hero-subtext-animate hero-subtext-secondary">
-            Orator helps you read aloud, track your pace, and build confidence one word at a time.
-            Start free, then unlock deeper coaching when you’re ready to level up.
+            Paste a script or choose a passage, then practice speaking with clear, helpful coaching.
+            Start free and build confidence one session at a time.
           </p>
 
           <ul className="landing-proof-list hero-checklist-animate">
@@ -175,7 +174,7 @@ function LandingPage() {
 
       <div className="orator-between-section-cta">
         <Link to="/sign-up" className="landing-nav-cta">
-          Get started for free
+          Start Practicing - It's Free
         </Link>
       </div>
 
