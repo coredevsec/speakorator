@@ -51,7 +51,7 @@ function AboutPage() {
       <section className="about-story">
         <article className="about-story-row">
           <div className="about-story-image" aria-label="The fear of public speaking">
-            <img src="/started.png" alt="A person beginning their public speaking journey" />
+            <img src="/started.jpeg" alt="A person beginning their public speaking journey" />
           </div>
           <div className="about-story-copy">
             <p className="practice-kicker">IT STARTED WITH A FEAR</p>
@@ -66,7 +66,7 @@ function AboutPage() {
 
         <article className="about-story-row">
           <div className="about-story-image" aria-label="Practice without feedback">
-            <img src="/prob.png" alt="A speaker practicing without clear feedback" />
+            <img src="/prob.jpeg" alt="A speaker practicing without clear feedback" />
           </div>
           <div className="about-story-copy">
             <p className="practice-kicker">THEN CAME THE PROBLEM</p>
@@ -81,7 +81,7 @@ function AboutPage() {
 
         <article className="about-story-row">
           <div className="about-story-image" aria-label="Orator practice solution">
-            <img src="/built.png" alt="Orator AI speaking practice in use" />
+            <img src="/built.jpeg" alt="Orator AI speaking practice in use" />
           </div>
           <div className="about-story-copy">
             <p className="practice-kicker">SO WE BUILT ORATOR</p>
@@ -96,7 +96,7 @@ function AboutPage() {
 
         <article className="about-story-row">
           <div className="about-story-image" aria-label="People using Orator today">
-            <img src="/wwrn.png" alt="People becoming confident with Orator" />
+            <img src="/wwrn.jpeg" alt="People becoming confident with Orator" />
           </div>
           <div className="about-story-copy">
             <p className="practice-kicker">WHERE WE ARE NOW</p>
