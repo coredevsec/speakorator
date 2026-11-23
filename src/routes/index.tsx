@@ -273,7 +273,18 @@ function LandingPage() {
       <article className="landing-feature-card orator-language-feature-card">
         <p className="practice-kicker orator-language-feature-label">MULTIPLE LANGUAGES</p>
         <div className="orator-3d-globe" aria-label="Animated globe showing Orator language support">
-          <img className="orator-earth-texture" src="/earth-globe.svg" alt="" />
+          <div className="orator-globe-tags orator-globe-tags-left" aria-hidden="true">
+            <span className="orator-globe-tag"><i className="orator-flag-us" /> EN</span>
+            <span className="orator-globe-tag"><i className="orator-flag-es" /> ES</span>
+            <span className="orator-globe-tag"><i className="orator-flag-fr" /> FR</span>
+          </div>
+          <div className="orator-earth-sphere">
+            <img className="orator-earth-texture" src="/earth-globe.svg" alt="" />
+          </div>
+          <div className="orator-globe-tags orator-globe-tags-right" aria-hidden="true">
+            <span className="orator-globe-tag"><i className="orator-flag-de" /> DE</span>
+            <span className="orator-globe-tag"><i className="orator-flag-br" /> PT</span>
+          </div>
           <span className="orator-globe-shadow" />
         </div>
         <div className="orator-language-feature-copy">

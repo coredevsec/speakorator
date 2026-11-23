@@ -1374,25 +1374,102 @@ section.orator-community-carousel > .orator-community-card {
   line-height: 1.4;
 }
 .orator-3d-globe {
-  perspective: none;
+  perspective: 900px;
+  transform-style: preserve-3d;
 }
-.orator-earth-texture {
+.orator-earth-sphere {
   position: relative;
   z-index: 1;
-  display: block;
   width: 82%;
   aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid rgba(168, 239, 255, 0.72);
   border-radius: 50%;
-  filter: drop-shadow(0 18px 22px rgba(2, 12, 18, 0.45));
-  animation: orator-earth-spin 32s linear infinite;
-  transform-origin: 50% 50%;
+  background: #12618e;
+  box-shadow:
+    inset -26px -10px 38px rgba(2, 12, 18, 0.58),
+    inset 12px 8px 24px rgba(220, 249, 255, 0.18),
+    0 16px 34px rgba(2, 12, 18, 0.38);
+}
+.orator-earth-sphere::after {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 32% 28%, rgba(245, 255, 255, 0.2), transparent 48%),
+    linear-gradient(90deg, transparent 48%, rgba(1, 13, 30, 0.12) 72%, rgba(1, 13, 30, 0.56));
+  content: "";
+  pointer-events: none;
+}
+.orator-earth-texture {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: orator-earth-spin 26s linear infinite;
+  backface-visibility: visible;
+  transform-style: preserve-3d;
 }
 .orator-globe-shadow {
   z-index: 0;
 }
 @keyframes orator-earth-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+.orator-globe-tags {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  transform: translateY(-50%);
+}
+.orator-globe-tags-left { left: -12%; }
+.orator-globe-tags-right { right: -12%; }
+.orator-globe-tag {
+  display: inline-flex;
+  min-width: 3.2rem;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.45rem;
+  border: 1px solid #97c1d64d;
+  border-radius: 999px;
+  background: rgba(9, 23, 39, 0.9);
+  color: #dfeaf7;
+  font-size: 0.68rem;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(2, 12, 18, 0.25);
+}
+.orator-globe-tag i {
+  display: block;
+  width: 1.05rem;
+  height: 0.7rem;
+  flex: 0 0 1.05rem;
+  overflow: hidden;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+.orator-flag-us {
+  background: repeating-linear-gradient(to bottom, #c94343 0 8%, #fff 8% 16%);
+}
+.orator-flag-es {
+  background: linear-gradient(to bottom, #bd3036 0 25%, #f5cf54 25% 75%, #bd3036 75%);
+}
+.orator-flag-fr {
+  background: linear-gradient(to right, #3156a4 0 33%, #fff 33% 66%, #d84343 66%);
+}
+.orator-flag-de {
+  background: linear-gradient(to bottom, #202020 0 33%, #c83d3d 33% 66%, #e5bf53 66%);
+}
+.orator-flag-br {
+  background: radial-gradient(circle, #2e69ac 0 22%, transparent 24%), #4b9b58;
+}
+@media (max-width: 640px) {
+  .orator-globe-tags-left { left: -6%; }
+  .orator-globe-tags-right { right: -6%; }
+  .orator-globe-tag { min-width: 2.85rem; padding: 0.28rem 0.35rem; }
 }
 @media (max-width: 640px) {
   .orator-practice-benefits {
