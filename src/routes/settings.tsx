@@ -13,6 +13,7 @@ import {
 } from "../lib/presentation-preferences";
 
 export const Route = createFileRoute("/settings")({
+  head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
   component: SettingsPage,
 });
 
@@ -58,8 +59,9 @@ function SettingsPage() {
       void navigate({ to: "/sign-in", replace: true });
       return;
     }
+    const client = supabase;
     let active = true;
-    void supabase.auth
+    void client.auth
       .getSession()
       .then(async ({ data, error: sessionError }) => {
         if (!active) return;
@@ -77,7 +79,7 @@ function SettingsPage() {
           const savedPreferences = getPresentationPreferences(data.session.user.id);
           setPresentationPreferences(savedPreferences);
           setSavedPresentationPreferences(savedPreferences);
-          const { data: profile, error: profileLoadError } = await supabase
+          const { data: profile, error: profileLoadError } = await client
             .from("profiles")
             .select("first_name, surname, country, state_region, occupation, phone")
             .eq("id", data.session.user.id)
@@ -92,12 +94,12 @@ function SettingsPage() {
             setPhone(profile.phone ?? "");
           } else {
             const metadata = data.session.user.user_metadata ?? {};
-            setFirstName(typeof metadata.first_name === "string" ? metadata.first_name : "");
-            setSurname(typeof metadata.surname === "string" ? metadata.surname : "");
-            setCountry(typeof metadata.country === "string" ? metadata.country : "");
-            setStateRegion(typeof metadata.state_region === "string" ? metadata.state_region : "");
-            setOccupation(typeof metadata.occupation === "string" ? metadata.occupation : "");
-            setPhone(typeof metadata.phone === "string" ? metadata.phone : "");
+            setFirstName(typeof metadata["first_name"] === "string" ? metadata["first_name"] : "");
+            setSurname(typeof metadata["surname"] === "string" ? metadata["surname"] : "");
+            setCountry(typeof metadata["country"] === "string" ? metadata["country"] : "");
+            setStateRegion(typeof metadata["state_region"] === "string" ? metadata["state_region"] : "");
+            setOccupation(typeof metadata["occupation"] === "string" ? metadata["occupation"] : "");
+            setPhone(typeof metadata["phone"] === "string" ? metadata["phone"] : "");
           }
           setChecking(false);
         }

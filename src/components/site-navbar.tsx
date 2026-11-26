@@ -70,7 +70,7 @@ export function SiteNavbar({
             <nav className="landing-navbar-desktop" aria-label="Landing navigation">
               <Link to="/about">About</Link>
               <Link to="/pricing">Pricing</Link>
-              <a href="#">Blog</a>
+              <Link to="/blog">Blog</Link>
               <Link to="/sign-up" className="landing-nav-cta orator-get-started" style={{ color: "#0a1a27" }}>
                 Get Started
               </Link>
@@ -93,9 +93,9 @@ export function SiteNavbar({
                   <Link to="/pricing" onClick={() => setMenuOpen(false)}>
                     Pricing
                   </Link>
-                  <a href="#" onClick={() => setMenuOpen(false)}>
+                  <Link to="/blog" onClick={() => setMenuOpen(false)}>
                     Blog
-                  </a>
+                  </Link>
                   <Link
                     to="/sign-up"
                     className="landing-nav-cta orator-get-started"

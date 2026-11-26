@@ -21,6 +21,11 @@ export const Route = createFileRoute("/api/flutterwave-webhook")({
           return new Response("Invalid webhook signature.", { status: 401 });
         }
 
+        const contentLength = Number(request.headers.get("content-length") ?? "0");
+        if (contentLength > 262_144) {
+          return new Response("Webhook payload is too large.", { status: 413 });
+        }
+
         let event: FlutterwaveWebhookEvent;
         try {
           event = (await request.json()) as FlutterwaveWebhookEvent;
@@ -108,6 +113,7 @@ export const Route = createFileRoute("/api/flutterwave-webhook")({
           }
           const expectedCents = PLAN_DETAILS[planKey].cents;
           if (
+            typeof verified.amount !== "number" ||
             !Number.isFinite(verified.amount) ||
             Math.round(verified.amount * 100) !== expectedCents
           ) {

@@ -16,7 +16,9 @@ export const Route = createFileRoute("/faqs")({
         name: "description",
         content: "Frequently asked questions about Orator speaking practice, accounts, browsers, passages, scoring, and supported languages.",
       },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://orator.corenator.com/faqs" }],
   }),
   component: FAQsPage,
 });

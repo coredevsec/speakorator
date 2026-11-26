@@ -19,6 +19,8 @@ import { SPEECH_LANGUAGES, type SpeechLanguage } from "../lib/speech-recognition
 const SAVED_PRACTICES_KEY = "orator.saved-practices";
 const PRACTICE_DRAFT_KEY = "orator.practice-draft";
 const PRACTICE_DRAFT_LANGUAGE_KEY = "orator.practice-draft-language";
+const MAX_SAVED_PRACTICES = 100;
+const MAX_PRACTICE_TEXT_LENGTH = 100_000;
 
 type SavedPractice = {
   id: string;
@@ -33,6 +35,7 @@ function countWords(text: string): number {
 }
 
 export const Route = createFileRoute("/saved-practices")({
+  head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
   component: SavedPracticesPage,
 });
 
@@ -61,7 +64,7 @@ function SavedPracticesPage() {
         void navigate({ to: "/billing", replace: true });
         return;
       }
-      setPractices(JSON.parse(window.localStorage.getItem(SAVED_PRACTICES_KEY) ?? "[]"));
+      setPractices(readSavedPractices());
       setChecking(false);
     });
     return () => {
@@ -210,4 +213,39 @@ function SavedPracticesPage() {
       </AlertDialog>
     </main>
   );
+}
+
+function readSavedPractices(): SavedPractice[] {
+  try {
+    const raw = window.localStorage.getItem(SAVED_PRACTICES_KEY);
+    if (!raw || raw.length > 2_000_000) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.slice(0, MAX_SAVED_PRACTICES).flatMap((value): SavedPractice[] => {
+      if (!value || typeof value !== "object") return [];
+      const item = value as Partial<SavedPractice>;
+      if (
+        typeof item.id !== "string" || item.id.length > 100 ||
+        typeof item.title !== "string" || item.title.length > 300 ||
+        typeof item.text !== "string" || item.text.length > MAX_PRACTICE_TEXT_LENGTH ||
+        typeof item.savedAt !== "string" || item.savedAt.length > 100
+      ) return [];
+
+      const language = typeof item.language === "string"
+        ? SPEECH_LANGUAGES.find((entry) => entry.code === item.language)?.code
+        : undefined;
+
+      const practice: SavedPractice = {
+        id: item.id,
+        title: item.title,
+        text: item.text,
+        savedAt: item.savedAt,
+      };
+      if (language) practice.language = language;
+      return [practice];
+    });
+  } catch {
+    return [];
+  }
 }

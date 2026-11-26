@@ -11,7 +11,9 @@ export const Route = createFileRoute("/about")({
         content:
           "Learn how Orator helps people practice public speaking with real-time feedback on pace, clarity, filler words, and pauses.",
       },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://orator.corenator.com/about" }],
   }),
   component: AboutPage,
 });
@@ -131,13 +133,12 @@ function AboutPage() {
         <h2>Ready to make your next words count?</h2>
         <div className="about-cta-actions">
           <Link to="/sign-up" className="landing-nav-cta about-primary-cta">
-            Ready to try Orator? Get started ›
+            Ready to try Orator? Get started
           </Link>
           <div>
-            <a href="mailto:support@coranator.com" className="about-secondary-cta">
-              Have a question? Get in touch ›
+            <a href="mailto:support@corenator.com" className="about-secondary-cta about-secondary-cta-visible">
+              Have a question? Get in touch
             </a>
-            <span>info@corenator.com</span>
           </div>
         </div>
       </section>

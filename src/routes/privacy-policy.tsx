@@ -10,7 +10,9 @@ export const Route = createFileRoute("/privacy-policy")({
         content:
           "Read the Orator privacy policy to understand how we collect, use, and protect your personal data.",
       },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://orator.corenator.com/privacy-policy" }],
   }),
   component: PrivacyPolicyPage,
 });

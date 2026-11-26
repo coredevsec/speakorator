@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as BillingRouteImport } from './routes/billing'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as FaqsRouteImport } from './routes/faqs'
 import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -20,6 +21,8 @@ import { Route as SavedPracticesRouteImport } from './routes/saved-practices'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as StatusRouteImport } from './routes/status'
+import { Route as SupportRouteImport } from './routes/support'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VoiceTypingRouteImport } from './routes/voice-typing'
 import { Route as ApiFlutterwaveCheckoutRouteImport } from './routes/api/flutterwave-checkout'
@@ -38,6 +41,11 @@ const AboutRoute = AboutRouteImport.update({
 const BillingRoute = BillingRouteImport.update({
   id: '/billing',
   path: '/billing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqsRoute = FaqsRouteImport.update({
@@ -80,6 +88,16 @@ const SignUpRoute = SignUpRouteImport.update({
   path: '/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -105,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/billing': typeof BillingRoute
+  '/blog': typeof BlogRoute
   '/faqs': typeof FaqsRoute
   '/practice': typeof PracticeRoute
   '/pricing': typeof PricingRoute
@@ -113,6 +132,8 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/status': typeof StatusRoute
+  '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/voice-typing': typeof VoiceTypingRoute
   '/api/flutterwave-checkout': typeof ApiFlutterwaveCheckoutRoute
@@ -122,6 +143,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/billing': typeof BillingRoute
+  '/blog': typeof BlogRoute
   '/faqs': typeof FaqsRoute
   '/practice': typeof PracticeRoute
   '/pricing': typeof PricingRoute
@@ -130,6 +152,8 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/status': typeof StatusRoute
+  '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/voice-typing': typeof VoiceTypingRoute
   '/api/flutterwave-checkout': typeof ApiFlutterwaveCheckoutRoute
@@ -140,6 +164,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/billing': typeof BillingRoute
+  '/blog': typeof BlogRoute
   '/faqs': typeof FaqsRoute
   '/practice': typeof PracticeRoute
   '/pricing': typeof PricingRoute
@@ -148,6 +173,8 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/status': typeof StatusRoute
+  '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/voice-typing': typeof VoiceTypingRoute
   '/api/flutterwave-checkout': typeof ApiFlutterwaveCheckoutRoute
@@ -159,6 +186,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/billing'
+    | '/blog'
     | '/faqs'
     | '/practice'
     | '/pricing'
@@ -167,6 +195,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sign-in'
     | '/sign-up'
+    | '/status'
+    | '/support'
     | '/terms'
     | '/voice-typing'
     | '/api/flutterwave-checkout'
@@ -176,6 +206,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/billing'
+    | '/blog'
     | '/faqs'
     | '/practice'
     | '/pricing'
@@ -184,6 +215,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sign-in'
     | '/sign-up'
+    | '/status'
+    | '/support'
     | '/terms'
     | '/voice-typing'
     | '/api/flutterwave-checkout'
@@ -193,6 +226,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/billing'
+    | '/blog'
     | '/faqs'
     | '/practice'
     | '/pricing'
@@ -201,6 +235,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sign-in'
     | '/sign-up'
+    | '/status'
+    | '/support'
     | '/terms'
     | '/voice-typing'
     | '/api/flutterwave-checkout'
@@ -211,6 +247,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   BillingRoute: typeof BillingRoute
+  BlogRoute: typeof BlogRoute
   FaqsRoute: typeof FaqsRoute
   PracticeRoute: typeof PracticeRoute
   PricingRoute: typeof PricingRoute
@@ -219,6 +256,8 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
+  StatusRoute: typeof StatusRoute
+  SupportRoute: typeof SupportRoute
   TermsRoute: typeof TermsRoute
   VoiceTypingRoute: typeof VoiceTypingRoute
   ApiFlutterwaveCheckoutRoute: typeof ApiFlutterwaveCheckoutRoute
@@ -246,6 +285,13 @@ declare module '@tanstack/react-router' {
       path: '/billing'
       fullPath: '/billing'
       preLoaderRoute: typeof BillingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faqs': {
@@ -304,6 +350,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -339,6 +399,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   BillingRoute: BillingRoute,
+  BlogRoute: BlogRoute,
   FaqsRoute: FaqsRoute,
   PracticeRoute: PracticeRoute,
   PricingRoute: PricingRoute,
@@ -347,6 +408,8 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
+  StatusRoute: StatusRoute,
+  SupportRoute: SupportRoute,
   TermsRoute: TermsRoute,
   VoiceTypingRoute: VoiceTypingRoute,
   ApiFlutterwaveCheckoutRoute: ApiFlutterwaveCheckoutRoute,

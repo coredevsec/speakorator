@@ -87,6 +87,7 @@ function saveVoiceTypingPreference(userId: string, enabled: boolean) {
 }
 
 export const Route = createFileRoute("/voice-typing")({
+  head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
   component: VoiceTypingPage,
 });
 

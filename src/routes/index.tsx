@@ -1,6 +1,7 @@
 ﻿import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, ChevronLeft, ChevronRight, Mic, ShieldCheck, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import * as THREE from "three";
 
 import { SiteNavbar } from "../components/site-navbar";
 import {
@@ -16,12 +17,12 @@ export const Route = createFileRoute("/")({
     meta: [
       {
         title:
-          "Orator by Corenator - Free Public Speaking Practice App | Voice-Following Teleprompter",
+          "Orator by Corenator - Free AI Public Speaking Practice App | Voice-Following Teleprompter",
       },
       {
         name: "description",
         content:
-          "Orator is a free public speaking practice app and voice-following teleprompter. Paste your speech, sermon, pitch or YouTube script, read out loud, and Orator follows your voice so you never lose your place.",
+          "Practice public speaking with an AI voice-following teleprompter. Get real-time feedback on pace, clarity, filler words, and pauses.",
       },
       { property: "og:title", content: "Orator | Practice with Confidence" },
       {
@@ -34,6 +35,28 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "https://orator.corenator.com/" },
       { property: "og:image", content: "https://orator.corenator.com/og-image.png" },
       { name: "robots", content: "index, follow" },
+    ],
+    script: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'SoftwareApplication',
+          name: 'Orator',
+          applicationCategory: 'BusinessApplication',
+          operatingSystem: 'Web',
+          description:
+            'AI public speaking practice app and voice-following teleprompter with real-time feedback on pace, clarity, filler words, and pauses.',
+          url: 'https://orator.corenator.com/',
+          publisher: { '@type': 'Organization', name: 'Corenator' },
+          offers: {
+            '@type': 'Offer',
+            priceCurrency: 'USD',
+            price: '0',
+            availability: 'https://schema.org/InStock',
+          },
+        }),
+      },
     ],
   }),
   component: LandingPage,
@@ -56,6 +79,18 @@ function LandingPage() {
     {
       quote: "It gives my practice a clear rhythm and a useful next step.",
       source: "Practice feedback",
+    },
+    {
+      quote: "I rehearse presentations with less stress and a much steadier pace.",
+      source: "Orator user",
+    },
+    {
+      quote: "Seeing my filler words and pauses makes it easier to know what to improve.",
+      source: "Orator user",
+    },
+    {
+      quote: "It is simple to paste a script, read aloud, and keep my place.",
+      source: "Orator user",
     },
   ];
   const [activeCommunityQuote, setActiveCommunityQuote] = useState(0);
@@ -136,7 +171,6 @@ function LandingPage() {
             Paste a script or choose a passage, then practice speaking with clear, helpful coaching.
             Start free and build confidence one session at a time.
           </p>
-
         </div>
       </section>
 
@@ -272,20 +306,19 @@ function LandingPage() {
 
       <article className="landing-feature-card orator-language-feature-card">
         <p className="practice-kicker orator-language-feature-label">MULTIPLE LANGUAGES</p>
-        <div className="orator-3d-globe" aria-label="Animated globe showing Orator language support">
+        <div className="orator-3d-globe" aria-label="Interactive Earth globe">
           <div className="orator-globe-tags orator-globe-tags-left" aria-hidden="true">
             <span className="orator-globe-tag"><i className="orator-flag-us" /> EN</span>
             <span className="orator-globe-tag"><i className="orator-flag-es" /> ES</span>
             <span className="orator-globe-tag"><i className="orator-flag-fr" /> FR</span>
           </div>
-          <div className="orator-earth-sphere">
-            <img className="orator-earth-texture" src="/earth-globe.svg" alt="" />
+          <div className="orator-earth-globe-container">
+            <InteractiveEarthGlobe />
           </div>
           <div className="orator-globe-tags orator-globe-tags-right" aria-hidden="true">
             <span className="orator-globe-tag"><i className="orator-flag-de" /> DE</span>
             <span className="orator-globe-tag"><i className="orator-flag-br" /> PT</span>
           </div>
-          <span className="orator-globe-shadow" />
         </div>
         <div className="orator-language-feature-copy">
           <h2>Practice in the language you speak</h2>
@@ -466,4 +499,115 @@ function LandingPage() {
       </section>
     </main>
   );
+}
+
+function InteractiveEarthGlobe() {
+  const mountRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const mount = mountRef.current;
+    if (!mount) return;
+
+    const width = mount.clientWidth || 320;
+    const height = mount.clientHeight || 320;
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
+    camera.position.set(0, 0, 3.8);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(width, height);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    mount.appendChild(renderer.domElement);
+
+    const textureLoader = new THREE.TextureLoader();
+    const texture = textureLoader.load("/earth-texture.jpg");
+    texture.colorSpace = THREE.SRGBColorSpace;
+
+    const globe = new THREE.Group();
+    globe.rotation.z = THREE.MathUtils.degToRad(-23.4);
+    scene.add(globe);
+
+    const geometry = new THREE.SphereGeometry(1.02, 64, 64);
+    const material = new THREE.MeshPhongMaterial({
+      map: texture,
+      shininess: 12,
+      specular: new THREE.Color(0x6f9fb2),
+    });
+    const sphere = new THREE.Mesh(geometry, material);
+    globe.add(sphere);
+
+    scene.add(new THREE.AmbientLight(0xbdd8e4, 1.55));
+    const sunlight = new THREE.DirectionalLight(0xffffff, 2.1);
+    sunlight.position.set(3.5, 2.5, 4);
+    scene.add(sunlight);
+
+    let dragging = false;
+    let previousX = 0;
+    let previousY = 0;
+
+    const startDrag = (event: PointerEvent) => {
+      dragging = true;
+      previousX = event.clientX;
+      previousY = event.clientY;
+      renderer.domElement.setPointerCapture(event.pointerId);
+      renderer.domElement.style.cursor = "grabbing";
+    };
+    const moveDrag = (event: PointerEvent) => {
+      if (!dragging) return;
+      const deltaX = event.clientX - previousX;
+      const deltaY = event.clientY - previousY;
+      previousX = event.clientX;
+      previousY = event.clientY;
+      globe.rotation.y += deltaX * 0.006;
+      globe.rotation.x = THREE.MathUtils.clamp(globe.rotation.x + deltaY * 0.003, -0.25, 0.25);
+    };
+    const stopDrag = (event: PointerEvent) => {
+      dragging = false;
+      if (renderer.domElement.hasPointerCapture(event.pointerId)) {
+        renderer.domElement.releasePointerCapture(event.pointerId);
+      }
+      renderer.domElement.style.cursor = "grab";
+    };
+
+    renderer.domElement.style.cursor = "grab";
+    renderer.domElement.style.touchAction = "pan-y";
+    renderer.domElement.addEventListener("pointerdown", startDrag);
+    renderer.domElement.addEventListener("pointermove", moveDrag);
+    renderer.domElement.addEventListener("pointerup", stopDrag);
+    renderer.domElement.addEventListener("pointercancel", stopDrag);
+
+    let frame = 0;
+    const animate = () => {
+      frame = window.requestAnimationFrame(animate);
+      if (!dragging) globe.rotation.y += 0.0018;
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    const resize = () => {
+      const nextWidth = mount.clientWidth || 320;
+      const nextHeight = mount.clientHeight || 320;
+      camera.aspect = nextWidth / nextHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(nextWidth, nextHeight);
+    };
+    window.addEventListener("resize", resize);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", resize);
+      renderer.domElement.removeEventListener("pointerdown", startDrag);
+      renderer.domElement.removeEventListener("pointermove", moveDrag);
+      renderer.domElement.removeEventListener("pointerup", stopDrag);
+      renderer.domElement.removeEventListener("pointercancel", stopDrag);
+      geometry.dispose();
+      material.dispose();
+      texture.dispose();
+      renderer.dispose();
+      mount.removeChild(renderer.domElement);
+    };
+  }, []);
+
+  return <div className="orator-earth-canvas" ref={mountRef} aria-label="Interactive Earth globe" />;
 }

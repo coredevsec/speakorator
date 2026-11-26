@@ -13,7 +13,9 @@ export const Route = createFileRoute("/pricing")({
         content:
           "Choose a weekly, monthly, or yearly Orator plan for speaking practice and premium coaching tools.",
       },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://orator.corenator.com/pricing" }],
   }),
   component: PricingPage,
 });

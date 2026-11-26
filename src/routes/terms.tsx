@@ -10,7 +10,9 @@ export const Route = createFileRoute("/terms")({
         content:
           "Review the Orator terms of service, including usage rules, subscriptions, and responsibilities.",
       },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://orator.corenator.com/terms" }],
   }),
   component: TermsPage,
 });

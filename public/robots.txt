@@ -1,28 +1,31 @@
 User-agent: Googlebot
 Allow: /
-Disallow: /signin
-Disallow: /signup
-Disallow: /login
+Disallow: /sign-in
+Disallow: /sign-up
 Disallow: /practice
-Disallow: /dashboard
-Disallow: /app
+Disallow: /saved-practices
+Disallow: /settings
+Disallow: /billing
+Disallow: /voice-typing
 
 User-agent: Bingbot
 Allow: /
-Disallow: /signin
-Disallow: /signup
-Disallow: /login
+Disallow: /sign-in
+Disallow: /sign-up
 Disallow: /practice
-Disallow: /dashboard
-Disallow: /app
+Disallow: /saved-practices
+Disallow: /settings
+Disallow: /billing
+Disallow: /voice-typing
 
 User-agent: *
 Allow: /
-Disallow: /signin
-Disallow: /signup
-Disallow: /login
+Disallow: /sign-in
+Disallow: /sign-up
 Disallow: /practice
-Disallow: /dashboard
-Disallow: /app
+Disallow: /saved-practices
+Disallow: /settings
+Disallow: /billing
+Disallow: /voice-typing
 
 Sitemap: https://orator.corenator.com/sitemap.xml

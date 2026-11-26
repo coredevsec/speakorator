@@ -55,6 +55,7 @@ export const Route = createFileRoute("/practice")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: PracticePage,
@@ -289,7 +290,9 @@ function PracticePage() {
   useEffect(() => {
     const draft = window.sessionStorage.getItem(PRACTICE_DRAFT_KEY);
     if (draft === null) return;
-    setText(draft);
+    if (draft.length <= 100_000) {
+      setText(draft);
+    }
     const draftLanguage = window.sessionStorage.getItem(PRACTICE_DRAFT_LANGUAGE_KEY);
     if (draftLanguage && SPEECH_LANGUAGES.some((language) => language.code === draftLanguage)) {
       setSpeechLanguage(draftLanguage as SpeechLanguage);

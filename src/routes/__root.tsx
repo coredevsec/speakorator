@@ -36,7 +36,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
 
@@ -96,6 +96,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "robots", content: "index, follow" },
     ],
     links: [
+      { rel: "canonical", href: "https://orator.corenator.com/" },
       {
         rel: "stylesheet",
         href: appCss,
@@ -164,6 +165,9 @@ function SiteFooter() {
               <span>Orator</span>
             </Link>
             <p>AI public speaking practice, made natural.</p>
+            <a href="mailto:support@corenator.com" className="site-footer-support-email">
+              support@corenator.com
+            </a>
           </div>
 
           <nav className="site-footer-columns" aria-label="Footer navigation">
@@ -176,14 +180,14 @@ function SiteFooter() {
             <div>
               <strong>Company</strong>
               <Link to="/about">About</Link>
-              <a href="#">Blog</a>
+              <Link to="/blog">Blog</Link>
               <Link to="/pricing">Pricing</Link>
             </div>
             <div>
               <strong>Help</strong>
-              <a href="mailto:support@corenator.com">Support</a>
+              <Link to="/support">Support</Link>
               <Link to="/faqs">Help Center</Link>
-              <a href="#">Status</a>
+              <Link to="/status">Status</Link>
             </div>
             <div>
               <strong>Legal</strong>

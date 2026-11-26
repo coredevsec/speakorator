@@ -25,6 +25,15 @@ export const Route = createFileRoute("/api/flutterwave-checkout")({
         const user = await getAuthenticatedUser(request, env.supabaseUrl, env.serviceRoleKey);
         if (!user) return Response.json({ error: "Sign in to continue." }, { status: 401 });
 
+        const contentType = request.headers.get("content-type") ?? "";
+        if (!contentType.includes("application/json")) {
+          return Response.json({ error: "Invalid request format." }, { status: 415 });
+        }
+        const contentLength = Number(request.headers.get("content-length") ?? "0");
+        if (contentLength > 4096) {
+          return Response.json({ error: "Request is too large." }, { status: 413 });
+        }
+
         let body: { plan?: unknown };
         try {
           body = (await request.json()) as { plan?: unknown };

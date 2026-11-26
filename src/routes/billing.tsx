@@ -41,6 +41,7 @@ const PLANS = [
 ] as const;
 
 export const Route = createFileRoute("/billing")({
+  head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
   component: BillingPage,
 });
 
@@ -59,15 +60,16 @@ function BillingPage() {
       void navigate({ to: "/sign-in", replace: true });
       return;
     }
+    const client = supabase;
     let active = true;
-    void supabase.auth.getSession().then(async ({ data }) => {
+    void client.auth.getSession().then(async ({ data }) => {
       if (!active) return;
       if (!data.session) {
         void navigate({ to: "/sign-in", replace: true });
         return;
       }
 
-      const { data: subscriptionData, error } = await supabase
+      const { data: subscriptionData, error } = await client
         .from("subscriptions")
         .select("plan_key, status")
         .eq("user_id", data.session.user.id)
@@ -241,8 +243,9 @@ function BillingPage() {
               <div className="billing-plan billing-plan-featured">
                 <div className="billing-plan-heading">
                   <h3>
-                    {activeSubscription.plan_key[0].toUpperCase() +
-                      activeSubscription.plan_key.slice(1)}
+                    {activeSubscription.plan_key
+                      ? activeSubscription.plan_key[0]?.toUpperCase() + activeSubscription.plan_key.slice(1)
+                      : "Membership"}
                   </h3>
                   <Sparkles className="h-5 w-5" aria-hidden="true" />
                 </div>
@@ -331,7 +334,7 @@ function PlanCard({
       </p>
       <button className="billing-action" type="button" onClick={onCheckout} disabled={disabled}>
         {loading ? (
-          <LoaderCircle className="h-4 w-4 animate-spin" />
+          <LoaderCircle className="h-4 w-4" animate-spin />
         ) : (
           <CreditCard className="h-4 w-4" />
         )}
