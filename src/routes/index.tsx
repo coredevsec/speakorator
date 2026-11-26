@@ -136,6 +136,36 @@ function LandingPage() {
   }, [communityQuotes.length]);
 
   useEffect(() => {
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      !("IntersectionObserver" in window)
+    ) {
+      return;
+    }
+
+    const targets = document.querySelectorAll<HTMLElement>(
+      ".landing-page > :not(.site-navbar):not(.landing-hero)",
+    );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0 },
+    );
+
+    targets.forEach((target) => {
+      target.classList.add("landing-scroll-reveal");
+      observer.observe(target);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     if (!supabase) return;
     let active = true;
 
