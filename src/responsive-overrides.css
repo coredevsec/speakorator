@@ -842,6 +842,9 @@
   margin-bottom: 1.25rem;
   text-align: left;
 }
+.orator-pricing-section {
+  padding-top: clamp(2.5rem, 6vw, 4rem);
+}
 .orator-pricing-toggle {
   display: flex;
   width: fit-content;
