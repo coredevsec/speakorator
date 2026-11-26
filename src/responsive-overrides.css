@@ -1816,6 +1816,55 @@ section.orator-community-carousel > .orator-community-card {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.landing-page .landing-feature-card.orator-pricing-card.orator-pricing-popular {
+  z-index: 2;
+  animation:
+    orator-monthly-card-arrive 620ms cubic-bezier(0.22, 1, 0.36, 1) both,
+    orator-monthly-card-float 3.6s ease-in-out 620ms infinite;
+}
+@keyframes orator-monthly-card-arrive {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes orator-monthly-card-float {
+  0%, 100% {
+    translate: 0 -0.75rem;
+    scale: 1.04;
+    box-shadow: 0 0 0 1px rgba(131, 240, 221, 0.42), 0 12px 30px rgba(15, 35, 50, 0.18);
+  }
+  50% {
+    translate: 0 -1.05rem;
+    scale: 1.06;
+    box-shadow: 0 0 0 2px rgba(131, 240, 221, 0.72), 0 18px 40px rgba(131, 240, 221, 0.17);
+  }
+}
+@keyframes orator-monthly-card-float-mobile {
+  0%, 100% {
+    translate: 0 -0.3rem;
+    scale: 1.01;
+    box-shadow: 0 0 0 1px rgba(131, 240, 221, 0.42), 0 10px 26px rgba(15, 35, 50, 0.18);
+  }
+  50% {
+    translate: 0 -0.55rem;
+    scale: 1.025;
+    box-shadow: 0 0 0 2px rgba(131, 240, 221, 0.72), 0 14px 30px rgba(131, 240, 221, 0.14);
+  }
+}
+@media (max-width: 640px) {
+  .landing-page .landing-feature-card.orator-pricing-card.orator-pricing-popular {
+    animation:
+      orator-monthly-card-arrive 620ms cubic-bezier(0.22, 1, 0.36, 1) both,
+      orator-monthly-card-float-mobile 3.6s ease-in-out 620ms infinite;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-page .landing-feature-card.orator-pricing-card.orator-pricing-popular {
+    animation: none;
+    opacity: 1;
+    translate: 0 -0.5rem;
+    scale: 1.03;
+  }
+}
 .landing-page .landing-feature-card:not(.orator-community-card),
 .landing-page .about-story-row,
 .landing-page .orator-blog-article,
