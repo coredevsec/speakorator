@@ -1816,3 +1816,245 @@ section.orator-community-carousel > .orator-community-card {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.landing-page .landing-feature-card:not(.orator-community-card),
+.landing-page .about-story-row,
+.landing-page .orator-blog-article,
+.landing-page .orator-status-services li,
+.legal-page .legal-card,
+.auth-page .auth-content,
+.auth-page .auth-panel,
+.account-page .account-page-content,
+.account-page .membership-hero-preview,
+.account-page .membership-benefit-grid > article,
+.account-page .membership-plans-section,
+.account-page .saved-practice-card,
+.account-page .settings-card,
+.account-page .empty-account-state,
+.practice-page,
+.voice-typing-page {
+  animation: orator-card-enter 640ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.landing-page .landing-feature-card,
+.landing-page .about-story-row,
+.landing-page .orator-blog-article,
+.landing-page .orator-status-services li,
+.legal-page .legal-card,
+.auth-page .auth-content,
+.auth-page .auth-panel,
+.account-page .account-page-content,
+.account-page .membership-hero-preview,
+.account-page .membership-benefit-grid > article,
+.account-page .membership-plans-section,
+.account-page .saved-practice-card,
+.account-page .settings-card,
+.account-page .empty-account-state,
+.practice-page,
+.voice-typing-page {
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+.landing-page .landing-feature-grid > :nth-child(2),
+.landing-page .orator-support-grid > :nth-child(2),
+.landing-page .orator-support-guides > :nth-child(2),
+.landing-page .about-story > :nth-child(2),
+.landing-page .orator-status-services li:nth-child(2),
+.account-page .membership-benefit-grid > :nth-child(2) {
+  animation-delay: 90ms;
+}
+.landing-page .landing-feature-grid > :nth-child(3),
+.landing-page .about-story > :nth-child(3),
+.landing-page .orator-status-services li:nth-child(3),
+.account-page .membership-benefit-grid > :nth-child(3) {
+  animation-delay: 180ms;
+}
+.landing-page .landing-feature-grid > :nth-child(4),
+.landing-page .about-story > :nth-child(4),
+.landing-page .orator-status-services li:nth-child(4),
+.account-page .membership-benefit-grid > :nth-child(4) {
+  animation-delay: 270ms;
+}
+.landing-page .landing-feature-grid > :nth-child(5),
+.landing-page .landing-feature-grid > :nth-child(6) {
+  animation-delay: 360ms;
+}
+.landing-page .orator-blog-articles > :nth-child(2) { animation-delay: 90ms; }
+.landing-page .orator-blog-articles > :nth-child(3) { animation-delay: 180ms; }
+.landing-page .orator-blog-articles > :nth-child(4) { animation-delay: 270ms; }
+.landing-page .orator-blog-articles > :nth-child(5) { animation-delay: 360ms; }
+.landing-page .orator-blog-articles > :nth-child(6) { animation-delay: 450ms; }
+.landing-page .landing-nav-cta,
+.landing-page .about-secondary-cta-visible,
+.landing-page button,
+.legal-page .legal-back,
+.auth-page button,
+.auth-page .auth-submit,
+.account-page button,
+.practice-page button,
+.voice-typing-page button {
+  transition:
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 180ms ease,
+    filter 180ms ease;
+}
+.landing-page .landing-nav-cta,
+.landing-page .about-secondary-cta-visible,
+.auth-page button,
+.auth-page .auth-submit {
+  animation: orator-action-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.landing-page .landing-nav-cta:active,
+.landing-page .about-secondary-cta-visible:active,
+.landing-page button:active,
+.auth-page button:active,
+.auth-page .auth-submit:active,
+.account-page button:active,
+.practice-page button:active,
+.voice-typing-page button:active {
+  transform: translateY(1px) scale(0.97);
+}
+.landing-page .landing-nav-cta:focus-visible,
+.landing-page .about-secondary-cta-visible:focus-visible,
+.landing-page button:focus-visible,
+.legal-page .legal-back:focus-visible {
+  outline: 2px solid #83f0dd;
+  outline-offset: 4px;
+}
+.site-footer a {
+  transition: color 180ms ease, transform 180ms ease, opacity 180ms ease;
+}
+@media (hover: hover) {
+  .landing-page .landing-feature-card:hover,
+  .landing-page .about-story-row:hover,
+  .landing-page .orator-blog-article:hover,
+  .landing-page .orator-status-services li:hover,
+  .legal-page .legal-card:hover,
+  .auth-page .auth-panel:hover,
+  .auth-page .auth-session-card:hover,
+  .account-page .saved-practice-card:hover,
+  .account-page .settings-card:hover,
+  .account-page .membership-benefit-grid > article:hover,
+  .account-page .membership-hero-preview:hover {
+    transform: translateY(-5px);
+    border-color: rgba(131, 240, 221, 0.65);
+  }
+  .landing-page .landing-nav-cta:hover,
+  .landing-page .about-secondary-cta-visible:hover,
+  .landing-page button:hover,
+  .legal-page .legal-back:hover,
+  .auth-page button:not(:disabled):hover,
+  .auth-page .auth-submit:hover,
+  .account-page button:not(:disabled):hover,
+  .practice-page button:not(:disabled):hover,
+  .voice-typing-page button:not(:disabled):hover {
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+  }
+  .site-footer a:hover {
+    transform: translateY(-1px);
+  }
+}
+@keyframes orator-card-enter {
+  from {
+    opacity: 0;
+    translate: 0 22px;
+    scale: 0.985;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+@keyframes orator-action-enter {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-page .landing-feature-card:not(.orator-community-card),
+  .landing-page .landing-feature-card:hover,
+  .landing-page .about-story-row,
+  .landing-page .about-story-row:hover,
+  .landing-page .orator-blog-article,
+  .landing-page .orator-blog-article:hover,
+  .landing-page .orator-status-services li,
+  .landing-page .orator-status-services li:hover,
+  .legal-page .legal-card,
+  .legal-page .legal-card:hover,
+  .auth-page .auth-content,
+  .auth-page .auth-panel,
+  .auth-page .auth-panel:hover,
+  .auth-page .auth-session-card:hover,
+  .account-page .account-page-content,
+  .account-page .membership-hero-preview,
+  .account-page .membership-hero-preview:hover,
+  .account-page .membership-benefit-grid > article,
+  .account-page .membership-benefit-grid > article:hover,
+  .account-page .membership-plans-section,
+  .account-page .saved-practice-card,
+  .account-page .saved-practice-card:hover,
+  .account-page .settings-card,
+  .account-page .settings-card:hover,
+  .account-page .empty-account-state,
+  .practice-page,
+  .voice-typing-page,
+  .landing-page .landing-nav-cta,
+  .landing-page .landing-nav-cta:hover,
+  .landing-page .landing-nav-cta:active,
+  .landing-page .about-secondary-cta-visible,
+  .landing-page .about-secondary-cta-visible:hover,
+  .landing-page .about-secondary-cta-visible:active,
+  .landing-page button,
+  .landing-page button:hover,
+  .landing-page button:active,
+  .auth-page button,
+  .auth-page button:hover,
+  .auth-page button:active,
+  .auth-page .auth-submit,
+  .auth-page .auth-submit:hover,
+  .auth-page .auth-submit:active,
+  .account-page button,
+  .account-page button:hover,
+  .account-page button:active,
+  .practice-page button,
+  .practice-page button:hover,
+  .practice-page button:active,
+  .voice-typing-page button,
+  .voice-typing-page button:hover,
+  .voice-typing-page button:active,
+  .legal-page .legal-back,
+  .legal-page .legal-back:hover,
+  .site-footer a,
+  .site-footer a:hover {
+    animation: none;
+    transition: none;
+    transform: none;
+    translate: none;
+    scale: 1;
+  }
+  .landing-page .landing-feature-card,
+  .landing-page .about-story-row,
+  .landing-page .orator-blog-article,
+  .landing-page .orator-status-services li,
+  .legal-page .legal-card,
+  .auth-page .auth-content,
+  .auth-page .auth-panel,
+  .account-page .account-page-content,
+  .account-page .membership-hero-preview,
+  .account-page .membership-benefit-grid > article,
+  .account-page .membership-plans-section,
+  .account-page .saved-practice-card,
+  .account-page .settings-card,
+  .account-page .empty-account-state,
+  .practice-page,
+  .voice-typing-page {
+    opacity: 1;
+  }
+}
