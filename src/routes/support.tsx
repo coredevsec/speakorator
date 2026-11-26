@@ -49,7 +49,7 @@ function SupportPage() {
               href="mailto:support@corenator.com?subject=Orator%20support%20request"
               className="landing-nav-cta orator-support-button"
             >
-              support@corenator.com
+              Email Support
             </a>
           </article>
 
@@ -61,7 +61,7 @@ function SupportPage() {
               href="mailto:info@corenator.com?subject=Orator%20general%20inquiry"
               className="landing-nav-cta orator-support-button"
             >
-              info@corenator.com
+              General Inquiry
             </a>
           </article>
         </div>

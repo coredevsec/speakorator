@@ -347,28 +347,26 @@
   font-weight: 600;
 }
 .hero-headline-animate {
-  animation: hero-fade-up 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: hero-fade-up 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .hero-subtext-animate {
-  animation: hero-fade-in 200ms ease-out 800ms both;
+  animation: hero-fade-in 320ms ease-out 90ms both;
 }
 .hero-subtext-secondary {
-  animation-delay: 1000ms;
+  animation-delay: 160ms;
 }
 .hero-checklist-animate li {
   opacity: 0;
-  animation: hero-fade-in 360ms ease-out both;
+  animation: hero-fade-in 260ms ease-out both;
 }
-.hero-checklist-animate li:nth-child(1) { animation-delay: 1200ms; }
-.hero-checklist-animate li:nth-child(2) { animation-delay: 1360ms; }
-.hero-checklist-animate li:nth-child(3) { animation-delay: 1520ms; }
-.hero-checklist-animate li:nth-child(4) { animation-delay: 1680ms; }
+.hero-checklist-animate li:nth-child(1) { animation-delay: 220ms; }
+.hero-checklist-animate li:nth-child(2) { animation-delay: 300ms; }
+.hero-checklist-animate li:nth-child(3) { animation-delay: 380ms; }
+.hero-checklist-animate li:nth-child(4) { animation-delay: 460ms; }
 .hero-card-animate {
   transform-origin: center;
   box-shadow: 0 18px 50px rgba(8, 20, 32, 0.18);
-  animation:
-    hero-card-enter 700ms cubic-bezier(0.22, 1, 0.36, 1) 1900ms both,
-    hero-card-float 7s ease-in-out 2600ms infinite;
+  animation: hero-card-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) 160ms both;
 }
 @keyframes hero-fade-up {
   from { opacity: 0; transform: translateY(18px); }
@@ -381,10 +379,6 @@
 @keyframes hero-card-enter {
   from { opacity: 0; transform: translateY(22px) scale(0.95); }
   to { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes hero-card-float {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-4px) scale(1); }
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-headline-animate,
@@ -848,7 +842,7 @@
 .orator-pricing-toggle {
   display: flex;
   width: fit-content;
-  margin: 0 auto 1.75rem;
+  margin: 0 auto 1.25rem;
   padding: 0.25rem;
   border: 1px solid #40566b;
   border-radius: 999px;
@@ -882,7 +876,10 @@
   max-width: none;
   margin: 0;
   padding: 0;
-  margin-top: 0.25rem;
+  margin-top: 2.5rem;
+}
+.landing-page .orator-pricing-grid {
+  margin-top: 3rem;
 }
 .orator-pricing-card {
   position: relative;

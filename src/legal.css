@@ -238,8 +238,8 @@
   }
 
   .site-footer-columns > div:nth-child(even) {
-    align-items: flex-end;
-    text-align: right;
+    align-items: flex-start;
+    text-align: left;
   }
 
   .site-footer-bottom {
