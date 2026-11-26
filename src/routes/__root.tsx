@@ -164,7 +164,7 @@ function SiteFooter() {
               </span>
               <span>Orator</span>
             </Link>
-            <p>AI public speaking practice, made natural.</p>
+            <p>Orator is built by Corenator</p>
             <a href="mailto:support@corenator.com" className="site-footer-support-email">
               support@corenator.com
             </a>

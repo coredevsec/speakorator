@@ -908,6 +908,9 @@
   align-items: flex-start;
   transition: border-color 180ms ease, box-shadow 180ms ease;
 }
+.orator-pricing-section .orator-pricing-card {
+  padding-bottom: 4rem;
+}
 .orator-pricing-popular {
   border-color: #83f0dd;
   box-shadow: 0 0 0 1px #83f0dd33;
@@ -1101,6 +1104,25 @@ section.orator-community-carousel > .orator-community-card {
   max-width: 44rem;
   margin: 0 auto;
   line-height: 1.75;
+}
+.about-builder {
+  width: min(100% - 2rem, 1100px);
+  margin: 0 auto clamp(3rem, 6vw, 4.5rem);
+  padding: clamp(1.5rem, 4vw, 2.5rem) 0;
+  border-block: 1px solid #3b5667;
+  text-align: center;
+}
+.about-builder .practice-kicker {
+  justify-content: center;
+}
+.about-builder h2 {
+  margin: 0.5rem 0;
+}
+.about-builder > p:last-child {
+  max-width: 48rem;
+  margin: 0 auto;
+  color: #bfd0e6;
+  line-height: 1.7;
 }
 .about-story {
   width: min(100% - 2rem, 1100px);

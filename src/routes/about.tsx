@@ -30,9 +30,44 @@ const languages = [
   "Portuguese (Brazil)",
 ];
 
+const aboutStructuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "AboutPage",
+      "@id": "https://orator.corenator.com/about#about-page",
+      url: "https://orator.corenator.com/about",
+      name: "About Orator and Corenator",
+      mainEntity: { "@id": "https://orator.corenator.com/about#corenator" },
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://orator.corenator.com/about#corenator",
+      name: "Corenator",
+      description: "The organization that builds Orator.",
+      email: "support@corenator.com",
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://orator.corenator.com/#orator",
+      name: "Orator",
+      url: "https://orator.corenator.com/",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      creator: { "@id": "https://orator.corenator.com/about#corenator" },
+      description:
+        "A web app for public-speaking practice with a voice-following teleprompter, word tracking, and feedback on pace, clarity, filler words, and pauses.",
+    },
+  ],
+};
+
 function AboutPage() {
   return (
     <main className="landing-page about-page">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutStructuredData) }}
+      />
       <SiteNavbar brandText="Orator" brandTo="/" showMenu={false} landingMenu>
         <nav className="landing-nav" aria-label="Account actions">
           <Link to="/sign-up" className="landing-nav-cta orator-get-started" style={{ color: "#0a1a27" }}>
@@ -47,6 +82,16 @@ function AboutPage() {
         <p>
           Orator began with a simple problem: speaking clearly should feel less intimidating. We
           built a calm place to practice, understand your delivery, and know what to improve next.
+        </p>
+      </section>
+
+      <section className="about-builder" aria-labelledby="about-builder-heading">
+        <p className="practice-kicker">BUILT BY CORENATOR</p>
+        <h2 id="about-builder-heading">Orator is a Corenator product</h2>
+        <p>
+          Corenator built Orator to help people become more confident speakers through practical,
+          guided rehearsal. Orator brings voice-following practice and clear feedback together in
+          one place.
         </p>
       </section>
 

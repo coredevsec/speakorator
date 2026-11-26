@@ -1,0 +1,33 @@
+# Orator
+
+> Orator is a web-based public-speaking practice app and voice-following teleprompter built by Corenator. It helps people rehearse aloud, follow their text word by word, and improve delivery with clear feedback.
+
+## About
+
+Orator is for anyone preparing to speak with more confidence, including students, job seekers, educators, presenters, creators, founders, faith leaders, and people practicing a new language. Users can bring their own speech or choose a sample passage and practice using a microphone.
+
+## Features
+
+- Voice-following teleprompter that highlights words as the user reads aloud.
+- Guided speech practice with feedback on pace, clarity, filler words, and pauses.
+- Core reading-room practice is free.
+- Orator Plus features include saved passages and a personal library, voice typing, sentence focus, reading appearance controls, and expanded delivery analytics.
+- Supported practice languages include English, Spanish, French, German, and Brazilian Portuguese, with regional options listed in the app.
+- An account is required to use Orator. Live speech recognition depends on browser support and microphone permission.
+
+## Pricing
+
+The pricing page lists Orator Plus subscriptions at $2.99 per week, $5.99 per month, or $71.88 per year (USD). Core practice remains free. Check the pricing page for current rates and plan details.
+
+## Key Pages
+
+- [Home](https://orator.corenator.com/): Product overview and practice information.
+- [Practice](https://orator.corenator.com/practice): Read aloud with voice following and delivery feedback.
+- [Voice Typing](https://orator.corenator.com/voice-typing): Dictate text into the app.
+- [Pricing](https://orator.corenator.com/pricing): Current subscription options and prices.
+- [Membership](https://orator.corenator.com/billing): Orator Plus membership details.
+- [About](https://orator.corenator.com/about): Orator's purpose and its builder, Corenator.
+- [Support](https://orator.corenator.com/support): Help with Orator.
+- [FAQs](https://orator.corenator.com/faqs): Common product questions.
+- [Privacy Policy](https://orator.corenator.com/privacy-policy): Privacy information.
+- [Terms](https://orator.corenator.com/terms): Terms of use.
