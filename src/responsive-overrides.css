@@ -1909,11 +1909,17 @@ section.orator-community-carousel > .orator-community-card {
 }
 .password-field .password-toggle {
   z-index: 2;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
+  top: 0;
+  right: 0.35rem;
+  bottom: 0;
+  width: 2.75rem;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
   padding: 0;
   border: 0;
   background: transparent;
+  transform: none;
   cursor: pointer;
   touch-action: manipulation;
 }
@@ -2067,6 +2073,9 @@ section.orator-community-carousel > .orator-community-card {
 .practice-page button:active,
 .voice-typing-page button:active {
   transform: translateY(1px) scale(0.97);
+}
+.auth-page .password-field .password-toggle:active {
+  transform: none;
 }
 .landing-page .landing-nav-cta:focus-visible,
 .landing-page .about-secondary-cta-visible:focus-visible,
