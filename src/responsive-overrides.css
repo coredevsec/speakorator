@@ -1093,35 +1093,53 @@ section.orator-community-carousel > .orator-community-card {
 }
 .about-hero {
   width: min(100% - 2rem, 1100px);
-  margin-inline: auto;
-  padding: clamp(3rem, 7vw, 5rem) 0 clamp(2.5rem, 5vw, 4rem);
+  margin: 0 auto clamp(2.5rem, 5vw, 4rem);
+  padding: clamp(3.5rem, 7vw, 5.5rem) 1rem clamp(2.5rem, 5vw, 4rem);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
   text-align: center;
 }
 .about-hero h1 {
-  margin-bottom: 1rem;
+  max-width: 16ch;
+  margin: 0 auto 1rem;
+  color: #f3f7fc;
+  font-size: 3.5rem;
+  line-height: 1.08;
 }
 .about-hero > p:last-child {
   max-width: 44rem;
   margin: 0 auto;
+  color: #bfd0e6;
+  font-size: 1.08rem;
   line-height: 1.75;
 }
 .about-builder {
   width: min(100% - 2rem, 1100px);
+  display: grid;
+  grid-template-columns: minmax(13rem, 0.8fr) minmax(0, 1.2fr);
+  grid-template-areas: "kicker copy" "heading copy";
+  align-items: center;
+  column-gap: clamp(1.5rem, 5vw, 4rem);
   margin: 0 auto clamp(3rem, 6vw, 4.5rem);
-  padding: clamp(1.5rem, 4vw, 2.5rem) 0;
+  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1.25rem, 4vw, 3rem);
   border-block: 1px solid #3b5667;
-  text-align: center;
+  border-left: 3px solid #83f0dd;
+  background: rgba(15, 35, 50, 0.42);
 }
 .about-builder .practice-kicker {
-  justify-content: center;
+  grid-area: kicker;
+  justify-content: flex-start;
+  margin: 0;
 }
 .about-builder h2 {
-  margin: 0.5rem 0;
+  grid-area: heading;
+  margin: 0.35rem 0 0;
 }
 .about-builder > p:last-child {
-  max-width: 48rem;
-  margin: 0 auto;
+  grid-area: copy;
+  max-width: 42rem;
+  margin: 0;
   color: #bfd0e6;
+  font-size: 1.02rem;
   line-height: 1.7;
 }
 .about-story {
@@ -1171,8 +1189,27 @@ section.orator-community-carousel > .orator-community-card {
   text-align: center;
 }
 .about-quote {
-  width: min(100% - 2rem, 1100px);
+  display: grid;
+  justify-items: center;
+  width: min(100% - 2rem, 56rem);
   margin: clamp(3rem, 7vw, 5rem) auto;
+  text-align: center;
+}
+.about-quote::before {
+  width: 3rem;
+  height: 2px;
+  margin-bottom: 1.5rem;
+  background: #83f0dd;
+  content: "";
+}
+.about-quote p {
+  width: 100%;
+  max-width: 48rem;
+  margin: 0 auto;
+  color: #f3f7fc;
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  line-height: 1.55;
 }
 .about-cta {
   width: min(100% - 2rem, 1100px);
@@ -1197,6 +1234,21 @@ section.orator-community-carousel > .orator-community-card {
 @media (max-width: 640px) {
   .about-hero {
     padding: 2.5rem 0 2.25rem;
+  }
+  .about-hero h1 {
+    font-size: 2.5rem;
+  }
+  .about-builder {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "kicker" "heading" "copy";
+    row-gap: 0.45rem;
+    padding: 1.35rem 1.1rem;
+  }
+  .about-builder > p:last-child {
+    margin-top: 0.35rem;
+  }
+  .about-quote p {
+    font-size: 1.2rem;
   }
   .about-story {
     gap: 2.5rem;
