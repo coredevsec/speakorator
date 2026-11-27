@@ -22,9 +22,9 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Practice public speaking with an AI voice-following teleprompter. Get real-time feedback on pace, clarity, filler words, and pauses.",
+          "Orator by Corenator is an AI public-speaking practice app with a voice-following teleprompter and feedback on pace, clarity, filler words, and pauses.",
       },
-      { property: "og:title", content: "Orator | Practice with Confidence" },
+      { property: "og:title", content: "Orator by Corenator | Practice with Confidence" },
       {
         property: "og:description",
         content:
@@ -36,31 +36,42 @@ export const Route = createFileRoute("/")({
       { property: "og:image", content: "https://orator.corenator.com/og-image.png" },
       { name: "robots", content: "index, follow" },
     ],
-    script: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'SoftwareApplication',
-          name: 'Orator',
-          applicationCategory: 'BusinessApplication',
-          operatingSystem: 'Web',
-          description:
-            'AI public speaking practice app and voice-following teleprompter with real-time feedback on pace, clarity, filler words, and pauses.',
-          url: 'https://orator.corenator.com/',
-          publisher: { '@type': 'Organization', name: 'Corenator' },
-          offers: {
-            '@type': 'Offer',
-            priceCurrency: 'USD',
-            price: '0',
-            availability: 'https://schema.org/InStock',
-          },
-        }),
-      },
-    ],
+    links: [{ rel: "canonical", href: "https://orator.corenator.com/" }],
   }),
   component: LandingPage,
 });
+
+const homeStructuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://orator.corenator.com/#organization",
+      name: "Corenator",
+      url: "https://orator.corenator.com/",
+      email: "support@corenator.com",
+      description: "The organization that builds Orator.",
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://orator.corenator.com/#orator",
+      name: "Orator",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      description:
+        "AI public-speaking practice app and voice-following teleprompter with feedback on pace, clarity, filler words, and pauses.",
+      url: "https://orator.corenator.com/",
+      creator: { "@id": "https://orator.corenator.com/#organization" },
+      publisher: { "@id": "https://orator.corenator.com/#organization" },
+      offers: {
+        "@type": "Offer",
+        priceCurrency: "USD",
+        price: "0",
+        availability: "https://schema.org/InStock",
+      },
+    },
+  ],
+};
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -181,6 +192,10 @@ function LandingPage() {
 
   return (
     <main className="landing-page">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeStructuredData) }}
+      />
       <SiteNavbar brandText="Orator" brandTo="/" showMenu={false} landingMenu>
         <nav className="landing-nav" aria-label="Account actions">
           <Link to="/sign-up" className="landing-nav-cta orator-get-started" style={{ color: "#0a1a27" }}>

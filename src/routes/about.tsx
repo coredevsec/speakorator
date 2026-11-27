@@ -9,7 +9,7 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "Learn how Orator helps people practice public speaking with real-time feedback on pace, clarity, filler words, and pauses.",
+          "Learn how Corenator built Orator to help people practice public speaking with feedback on pace, clarity, filler words, and pauses.",
       },
       { name: "robots", content: "index, follow" },
     ],
@@ -42,8 +42,9 @@ const aboutStructuredData = {
     },
     {
       "@type": "Organization",
-      "@id": "https://orator.corenator.com/about#corenator",
+      "@id": "https://orator.corenator.com/#organization",
       name: "Corenator",
+      url: "https://orator.corenator.com/",
       description: "The organization that builds Orator.",
       email: "support@corenator.com",
     },
@@ -54,7 +55,8 @@ const aboutStructuredData = {
       url: "https://orator.corenator.com/",
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web",
-      creator: { "@id": "https://orator.corenator.com/about#corenator" },
+      creator: { "@id": "https://orator.corenator.com/#organization" },
+      publisher: { "@id": "https://orator.corenator.com/#organization" },
       description:
         "A web app for public-speaking practice with a voice-following teleprompter, word tracking, and feedback on pace, clarity, filler words, and pauses.",
     },

@@ -28,4 +28,6 @@ Disallow: /settings
 Disallow: /billing
 Disallow: /voice-typing
 
+# AI-readable product and organization summary
+# https://orator.corenator.com/llms.txt
 Sitemap: https://orator.corenator.com/sitemap.xml

@@ -82,8 +82,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "A reading coach that highlights each word as you speak it, helping you become a confident public speaker.",
       },
-      { name: "author", content: "Orator" },
-      { property: "og:title", content: "Orator | Read Aloud, Word by Word" },
+      { name: "author", content: "Corenator" },
+      { property: "og:site_name", content: "Orator by Corenator" },
+      { property: "og:title", content: "Orator by Corenator | Read Aloud, Word by Word" },
       {
         property: "og:description",
         content:
@@ -96,7 +97,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "robots", content: "index, follow" },
     ],
     links: [
-      { rel: "canonical", href: "https://orator.corenator.com/" },
       {
         rel: "stylesheet",
         href: appCss,

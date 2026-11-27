@@ -7,7 +7,7 @@ export const Route = createFileRoute("/privacy-policy")({
       {
         name: "description",
         content:
-          "Read the Orator privacy policy to understand how we collect, use, and protect your personal data.",
+          "Read how Corenator collects, uses, and protects personal data for the Orator public-speaking practice app.",
       },
       { name: "robots", content: "index, follow" },
     ],
@@ -29,6 +29,11 @@ function PrivacyPolicyPage() {
           <p>
             This Privacy Policy explains how Orator collects, uses, and protects your
             information when you use our website and services.
+          </p>
+          <p>
+            Orator is built and operated by Corenator. In this Policy, “Corenator,” “we,” “us,”
+            and “our” refer to the organization operating Orator and handling the information
+            described here.
           </p>
 
           <h2>1. Information We Collect</h2>
@@ -79,8 +84,8 @@ function PrivacyPolicyPage() {
 
           <h2>8. Contact</h2>
           <p>
-            If you have any questions about this Privacy Policy, please contact us via the support
-            options available on our website.
+            If you have any questions about this Privacy Policy, contact Corenator at{" "}
+            <a href="mailto:support@corenator.com">support@corenator.com</a>.
           </p>
         </article>
       </div>

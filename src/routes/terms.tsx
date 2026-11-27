@@ -7,7 +7,7 @@ export const Route = createFileRoute("/terms")({
       {
         name: "description",
         content:
-          "Review the Orator terms of service, including usage rules, subscriptions, and responsibilities.",
+          "Review the Orator terms of service for the public-speaking practice app built and operated by Corenator.",
       },
       { name: "robots", content: "index, follow" },
     ],
@@ -29,6 +29,10 @@ function TermsPage() {
           <p>
             These Terms of Service govern your access to and use of Orator and any related
             products and services.
+          </p>
+          <p>
+            Orator is built and operated by Corenator. In these Terms, “Corenator,” “we,” “us,”
+            and “our” refer to the organization providing the Orator service.
           </p>
 
           <h2>1. Acceptance of Terms</h2>
@@ -95,8 +99,7 @@ function TermsPage() {
 
           <h2>11. Contact</h2>
           <p>
-            Questions regarding these Terms may be directed to the support contact available on the
-            website.
+            Questions regarding these Terms may be sent to <a href="mailto:support@corenator.com">support@corenator.com</a>.
           </p>
         </article>
       </div>
