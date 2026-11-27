@@ -1907,6 +1907,20 @@ section.orator-community-carousel > .orator-community-card {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.password-field .password-toggle {
+  z-index: 2;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.password-field .password-toggle:focus-visible {
+  outline: 2px solid #83f0dd;
+  outline-offset: 1px;
+}
 .landing-page .landing-feature-card.orator-pricing-card.orator-pricing-popular {
   z-index: 2;
   animation:

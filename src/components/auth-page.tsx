@@ -521,6 +521,9 @@ export function AuthPage({ mode }: AuthPageProps) {
                       <button
                         type="button"
                         className="password-toggle"
+                        aria-controls="auth-password"
+                        aria-pressed={showPassword}
+                        onMouseDown={(event) => event.preventDefault()}
                         onClick={() => setShowPassword((visible) => !visible)}
                         aria-label={showPassword ? "Hide password" : "Show password"}
                         title={showPassword ? "Hide password" : "Show password"}
@@ -552,6 +555,9 @@ export function AuthPage({ mode }: AuthPageProps) {
                         <button
                           type="button"
                           className="password-toggle"
+                          aria-controls="auth-confirm-password"
+                          aria-pressed={showConfirmPassword}
+                          onMouseDown={(event) => event.preventDefault()}
                           onClick={() => setShowConfirmPassword((visible) => !visible)}
                           aria-label={
                             showConfirmPassword
